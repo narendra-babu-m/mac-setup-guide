@@ -15,6 +15,7 @@
 6. [Top 10 Productivity Tools — Installed](#6-top-10-productivity-tools--installed)
 7. [Quick Setup for Each New Tool](#7-quick-setup-for-each-new-tool)
 8. [Full Recommendations List](#8-full-recommendations-list)
+9. [macOS System Configuration](#9-macos-system-configuration)
 
 ---
 
@@ -410,5 +411,52 @@ echo 'eval "$(atuin init zsh)"' >> ~/.zshrc && source ~/.zshrc
 ---
 
 *Related files:*
+- `scripts/finder-defaults.sh` — Reproducible Finder configuration (see §9)
 - `Setup-RetroGamingMachine.ps1` — Windows retro gaming automation script
 - `RetroGaming-Setup-Guide.md` — Complete retro gaming reference guide
+
+---
+
+## 9. macOS System Configuration
+
+System-level tweaks applied via `defaults write`. Reproducible via committed scripts so a fresh Mac can be brought up to spec in one command.
+
+### Finder
+
+Run once on a new Mac (or after a preferences reset):
+
+```bash
+bash scripts/finder-defaults.sh
+```
+
+**What it sets**
+
+| Setting | Value | Why |
+|---|---|---|
+| Show hidden files | ON | Dotfiles + library debugging visible by default. `Cmd+Shift+.` still toggles. |
+| Show all extensions | ON | No more `image.png.exe` style surprises. |
+| Path bar | ON | Breadcrumb at the bottom; click any segment to jump. |
+| Status bar | ON | Item count + free space at a glance. |
+| POSIX path in title | ON | Aligns Finder window with terminal `pwd`. |
+| Default view | List (Nlsv) | Most useful with calculate-all-sizes; icon view wastes space. |
+| Default search scope | Current folder (SCcf) | "This Mac" search is rarely what you want. |
+| New windows open at | `$HOME` | Avoids the random "Recents" landing. |
+| Open folders in | Tabs | Keeps window count low. |
+| Calculate all sizes | ON | Folder sizes in list view (slight perf cost on huge folders, accepted tradeoff). |
+| `.DS_Store` on network | OFF | Doesn't pollute SMB/NFS shares. |
+| `.DS_Store` on USB | OFF | Doesn't pollute USB drives shared with non-Macs. |
+| Extension change warning | OFF | Skip the "are you sure" prompt. |
+| Empty trash warning | OFF | Trust the user. |
+| Auto-empty trash | After 30 days | Self-cleaning. |
+| All animations | OFF | Finder feels instant. |
+| `Cmd+Q` quits Finder | ON | Lets you fully close Finder when needed. |
+
+**Verify after running**
+
+```bash
+defaults read com.apple.finder AppleShowAllFiles            # → 1
+defaults read com.apple.finder ShowPathbar                  # → 1
+defaults read com.apple.finder | grep -i calculateAllSizes  # → all 1
+```
+
+**Revert** instructions are inline at the bottom of the script.
