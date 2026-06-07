@@ -452,7 +452,6 @@ mac-setup-guide/
     ├── screenshot-defaults.sh    ~/Pictures/Screenshots, PNG, no shadow
     ├── keyboard-defaults.sh      Fast repeat, no smart-quotes/dashes (humanize rule)
     ├── trackpad-defaults.sh      Tap-to-click, three-finger drag
-    ├── safari-defaults.sh        Develop menu, full URL, privacy
     ├── general-ui-defaults.sh    Save panels, scroll bars, F-keys
     └── security-defaults.sh      Screen lock, password delay
 ```
@@ -494,6 +493,25 @@ DOCK_AUTOHIDE=false bash scripts/dock-defaults.sh
 ### Idempotence + revert
 
 Every script is safe to re-run any number of times. Each ends with a REVERT block showing how to undo individual keys (`defaults write … false`, `defaults delete …`, or rerun the script with the var flipped).
+
+### Keeping the repo in sync (`sync.sh`)
+
+This repo is the source of truth, only if you keep it that way. Whenever you change something on your Mac:
+
+```bash
+bash ~/mac-setup-guide/sync.sh           # pulls current state back into repo
+cd ~/mac-setup-guide
+git diff && git add -A && git commit -m "chore: sync from $(hostname)"
+git push
+```
+
+What `sync.sh` captures automatically:
+- **Homebrew packages + casks + taps** — runs `brew bundle dump`, diffs against `Brewfile`, overwrites if drifted
+
+What you must update manually (full checklist + when-to-do-it in `MANUAL_STEPS.md` §8):
+- **System Settings toggles** — edit the matching `scripts/<area>-defaults.sh` variable
+- **Login Items** — document in `MANUAL_STEPS.md` §4 (Sonoma+ doesn't expose these to `defaults`)
+- **App-specific extensions** — Raycast / VS Code / browsers have their own cloud sync
 
 ### MDM caveat (corporate Macs)
 

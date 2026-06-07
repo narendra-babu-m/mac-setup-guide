@@ -161,3 +161,64 @@ After running everything, verify:
 If any of these fail, see the matching section above. If a `defaults`
 script reports "set" but the change doesn't appear, your Mac is likely
 MDM-managed — that key is overridden by a profile (not your fault).
+
+---
+
+## 8. Maintenance — Keeping the repo as the source of truth
+
+This is the part that breaks every "Mac setup repo" eventually: you install
+a tool ad-hoc, change a System Settings toggle, and the repo silently
+falls out of sync. Three weeks later the repo is a lie.
+
+**Rule of thumb: any change to your Mac that you'd be sad to lose belongs in this repo.**
+
+### When you install a brew package or cask
+
+```bash
+# install as usual
+brew install <something>           # or: brew install --cask <app>
+
+# then sync the repo
+bash ~/mac-setup-guide/sync.sh
+cd ~/mac-setup-guide
+git diff Brewfile                  # review the change
+git add Brewfile && git commit -m "chore(brewfile): add <package>" && git push
+```
+
+`sync.sh` runs `brew bundle dump` and compares it to the repo's `Brewfile`.
+If there's drift, it overwrites the file and tells you to commit.
+
+### When you change a System Settings toggle
+
+System Settings doesn't write to a single deterministic place — there's no
+clean "dump my Mac to a script" inverse. So:
+
+1. Open the matching `scripts/<area>-defaults.sh`
+2. Find the variable, flip the value (or add a new var + WHY comment)
+3. Run the script to confirm it reproduces the change you made manually
+4. Commit
+
+Example: you turned off Dock magnification via System Settings. Edit
+`scripts/dock-defaults.sh`, set `DOCK_MAGNIFICATION=false`, commit.
+
+### When you add a new Login Item
+
+System Settings → General → Login Items can't be written from `defaults`
+on Sonoma+ (it's controlled by `SMAppService` per-app). Document it in
+this file's §4 "First-Launch App Configuration" instead.
+
+### When you add a Raycast / VS Code / browser extension
+
+These have their own sync mechanisms — sign in to the cloud sync feature
+and you're done. Don't try to script them.
+
+### Checklist (paste into your weekly review)
+
+- [ ] `bash ~/mac-setup-guide/sync.sh` shows no drift
+- [ ] Any new System Settings change reflected in a `*-defaults.sh` var
+- [ ] New Login Items documented in MANUAL_STEPS.md §4
+- [ ] Repo committed + pushed
+
+If you notice yourself thinking "I'll remember to add this later" —
+that's the moment to stop and add it now. Future-you on a new Mac at
+2 a.m. won't remember.

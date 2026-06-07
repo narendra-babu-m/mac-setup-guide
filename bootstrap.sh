@@ -76,7 +76,6 @@ if [ "$SKIP_DEFAULTS" = "false" ]; then
     screenshot-defaults.sh \
     keyboard-defaults.sh \
     trackpad-defaults.sh \
-    safari-defaults.sh \
     general-ui-defaults.sh \
     security-defaults.sh
   do
