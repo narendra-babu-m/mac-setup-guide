@@ -10,9 +10,26 @@ source "$(dirname "$0")/lib/common.sh"
 # CONFIG
 # ============================================================================
 
-# Where screenshots are saved (created if missing)
-# WHY: Keeps Desktop clean. ~/Pictures/Screenshots is the conventional choice.
-SCREENSHOT_LOCATION="$HOME/Pictures/Screenshots"
+# Where screenshots are saved (created if missing).
+# Detection order:
+#   1. SCREENSHOT_LOCATION_OVERRIDE — set explicitly to skip detection.
+#   2. ~/Library/CloudStorage/OneDrive-* (work Mac with OneDrive synced)
+#         → uses <onedrive>/Screenshots so screenshots back up automatically.
+#   3. ~/Pictures/Screenshots (personal Mac fallback, conventional choice).
+# WHY: On the work Mac, OneDrive is the de-facto shared drop-zone — keeping
+#      screenshots inside it means they survive disk wipe and are reachable
+#      from Windows / Teams / browser without copy-paste.
+#      On a personal Mac without OneDrive, ~/Pictures/Screenshots is the
+#      cleanest non-Desktop home that Spotlight + Photos already index.
+#      The DECISION is data-driven: filesystem state at run-time, not user
+#      mood. Re-running the script always resolves to the same path.
+if [ -n "${SCREENSHOT_LOCATION_OVERRIDE:-}" ]; then
+  SCREENSHOT_LOCATION="$SCREENSHOT_LOCATION_OVERRIDE"
+elif _onedrive=$(ls -d "$HOME"/Library/CloudStorage/OneDrive-* 2>/dev/null | head -1) && [ -n "$_onedrive" ]; then
+  SCREENSHOT_LOCATION="$_onedrive/Screenshots"
+else
+  SCREENSHOT_LOCATION="$HOME/Pictures/Screenshots"
+fi
 
 # File format: "png", "jpg", "pdf", "tiff"
 # WHY: PNG is lossless and pastes cleanly into docs/issues.
