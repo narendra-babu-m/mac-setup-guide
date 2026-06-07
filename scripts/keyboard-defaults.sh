@@ -55,41 +55,24 @@ KB_DISABLE_AUTOMATIC_SPELLING=true
 # ============================================================================
 # APPLY
 # ============================================================================
+#
+# NOTE on naming: variables read as "DISABLE_X=true" but the underlying plist
+# key is "FeatureEnabled". apply_bool_inverted handles the flip so the CONFIG
+# section reads naturally (DISABLE=true → Enabled=false).
 
 log "applying Keyboard defaults..."
 
-apply_int  KB_KEY_REPEAT                  NSGlobalDomain KeyRepeat
-apply_int  KB_INITIAL_KEY_REPEAT          NSGlobalDomain InitialKeyRepeat
-apply_bool KB_DISABLE_PRESS_AND_HOLD      NSGlobalDomain ApplePressAndHoldEnabled
-# Note: KB_DISABLE_PRESS_AND_HOLD=true → ApplePressAndHoldEnabled=false (inverted).
-# We invert here so the CONFIG reads naturally.
-if [ "${KB_DISABLE_PRESS_AND_HOLD:-}" = "true" ]; then
-  defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
-elif [ "${KB_DISABLE_PRESS_AND_HOLD:-}" = "false" ]; then
-  defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool true
-fi
+apply_int          KB_KEY_REPEAT                  NSGlobalDomain KeyRepeat
+apply_int          KB_INITIAL_KEY_REPEAT          NSGlobalDomain InitialKeyRepeat
+apply_bool_inverted KB_DISABLE_PRESS_AND_HOLD     NSGlobalDomain ApplePressAndHoldEnabled
+apply_int          KB_FULL_KEYBOARD_ACCESS        NSGlobalDomain AppleKeyboardUIMode
 
-apply_int  KB_FULL_KEYBOARD_ACCESS        NSGlobalDomain AppleKeyboardUIMode
-
-# Inverted booleans (DISABLE_X=true → Automatic*Enabled=false)
-_invert_bool() {
-  local var=$1 domain=$2 key=$3
-  if [ -z "${!var+x}" ]; then
-    printf "    skip   %-45s (var %s unset)\n" "$key" "$var"
-    return
-  fi
-  local v="${!var}" inverted
-  [ "$v" = "true" ] && inverted=false || inverted=true
-  defaults write "$domain" "$key" -bool "$inverted"
-  printf "    set    %-45s = %s (DISABLE=%s)\n" "$key" "$inverted" "$v"
-}
-
-_invert_bool KB_DISABLE_SMART_QUOTES         NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled
-_invert_bool KB_DISABLE_SMART_DASHES         NSGlobalDomain NSAutomaticDashSubstitutionEnabled
-_invert_bool KB_DISABLE_AUTO_CAPITALIZATION  NSGlobalDomain NSAutomaticCapitalizationEnabled
-_invert_bool KB_DISABLE_AUTO_CORRECT         NSGlobalDomain NSAutomaticTextCompletionEnabled
-_invert_bool KB_DISABLE_PERIOD_SUBSTITUTION  NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled
-_invert_bool KB_DISABLE_AUTOMATIC_SPELLING   NSGlobalDomain NSAutomaticSpellingCorrectionEnabled
+apply_bool_inverted KB_DISABLE_SMART_QUOTES         NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled
+apply_bool_inverted KB_DISABLE_SMART_DASHES         NSGlobalDomain NSAutomaticDashSubstitutionEnabled
+apply_bool_inverted KB_DISABLE_AUTO_CAPITALIZATION  NSGlobalDomain NSAutomaticCapitalizationEnabled
+apply_bool_inverted KB_DISABLE_AUTO_CORRECT         NSGlobalDomain NSAutomaticTextCompletionEnabled
+apply_bool_inverted KB_DISABLE_PERIOD_SUBSTITUTION  NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled
+apply_bool_inverted KB_DISABLE_AUTOMATIC_SPELLING   NSGlobalDomain NSAutomaticSpellingCorrectionEnabled
 
 log "done. Sign out + back in for keyboard repeat changes to take full effect."
 

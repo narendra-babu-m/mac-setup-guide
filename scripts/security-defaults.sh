@@ -16,10 +16,11 @@ source "$(dirname "$0")/lib/common.sh"
 
 # Require password immediately when screen sleeps / saver activates
 # WHY: A Mac left at a desk should lock the moment it sleeps.
-SEC_REQUIRE_PASSWORD=true
+# Type: int (1 = require, 0 = no). Stored as int even though it's a bool concept.
+SEC_REQUIRE_PASSWORD=1
 
-# Password delay (seconds, 0 = immediately on wake)
-# WHY: 0 = no grace period. Pair with SEC_REQUIRE_PASSWORD=true.
+# Password delay (seconds). 0 = require immediately on wake.
+# WHY: 0 = no grace period. Pair with SEC_REQUIRE_PASSWORD=1.
 SEC_PASSWORD_DELAY=0
 
 # Auto-lock screen saver after N minutes of idle
@@ -33,20 +34,13 @@ SEC_IDLE_LOCK_MINUTES=5
 
 log "applying Security defaults..."
 
-if [ -n "${SEC_REQUIRE_PASSWORD+x}" ]; then
-  if [ "$SEC_REQUIRE_PASSWORD" = "true" ]; then
-    defaults write com.apple.screensaver askForPassword -int 1
-  else
-    defaults write com.apple.screensaver askForPassword -int 0
-  fi
-  log "    set    askForPassword = $SEC_REQUIRE_PASSWORD"
-fi
+apply_int             SEC_REQUIRE_PASSWORD com.apple.screensaver askForPassword
+apply_int             SEC_PASSWORD_DELAY   com.apple.screensaver askForPasswordDelay
 
-apply_int SEC_PASSWORD_DELAY com.apple.screensaver askForPasswordDelay
-
+# Idle lock is stored on the per-host scope as seconds, not minutes — convert.
 if [ -n "${SEC_IDLE_LOCK_MINUTES+x}" ]; then
-  defaults -currentHost write com.apple.screensaver idleTime -int "$((SEC_IDLE_LOCK_MINUTES * 60))"
-  log "    set    idleTime = ${SEC_IDLE_LOCK_MINUTES}min ($((SEC_IDLE_LOCK_MINUTES * 60))s)"
+  SEC_IDLE_LOCK_SECONDS=$((SEC_IDLE_LOCK_MINUTES * 60))
+  apply_int_currenthost SEC_IDLE_LOCK_SECONDS com.apple.screensaver idleTime
 fi
 
 log "done. Verify in System Settings → Lock Screen."

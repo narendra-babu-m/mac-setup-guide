@@ -52,34 +52,20 @@ UI_FN_KEYS_AS_STANDARD=true
 
 log "applying General UI defaults..."
 
-apply_bool   UI_EXPAND_SAVE_PANEL      NSGlobalDomain NSNavPanelExpandedStateForSaveMode
-apply_bool   UI_EXPAND_SAVE_PANEL      NSGlobalDomain NSNavPanelExpandedStateForSaveMode2
-apply_bool   UI_EXPAND_PRINT_PANEL     NSGlobalDomain PMPrintingExpandedStateForPrint
-apply_bool   UI_EXPAND_PRINT_PANEL     NSGlobalDomain PMPrintingExpandedStateForPrint2
-apply_bool   UI_DISABLE_OPEN_APP_WARNING com.apple.LaunchServices LSQuarantine
-apply_bool   UI_DISABLE_RESUME         NSGlobalDomain NSDisableAutomaticTermination
-apply_bool   UI_SAVE_TO_DISK           NSGlobalDomain NSDocumentSaveNewDocumentsToCloud
-# Note: UI_SAVE_TO_DISK=true → NSDocumentSaveNewDocumentsToCloud=false. Invert.
-if [ "${UI_SAVE_TO_DISK:-}" = "true" ]; then
-  defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
-elif [ "${UI_SAVE_TO_DISK:-}" = "false" ]; then
-  defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool true
-fi
+apply_bool          UI_EXPAND_SAVE_PANEL        NSGlobalDomain NSNavPanelExpandedStateForSaveMode
+apply_bool          UI_EXPAND_SAVE_PANEL        NSGlobalDomain NSNavPanelExpandedStateForSaveMode2
+apply_bool          UI_EXPAND_PRINT_PANEL       NSGlobalDomain PMPrintingExpandedStateForPrint
+apply_bool          UI_EXPAND_PRINT_PANEL       NSGlobalDomain PMPrintingExpandedStateForPrint2
+apply_bool          UI_DISABLE_OPEN_APP_WARNING com.apple.LaunchServices LSQuarantine
+apply_bool          UI_DISABLE_RESUME           NSGlobalDomain NSDisableAutomaticTermination
 
-apply_int    UI_SIDEBAR_ICON_SIZE      NSGlobalDomain NSTableViewDefaultSizeMode
-apply_string UI_SCROLLBAR_BEHAVIOR     NSGlobalDomain AppleShowScrollBars
+# UI_SAVE_TO_DISK=true → NSDocumentSaveNewDocumentsToCloud=false (inverted)
+apply_bool_inverted UI_SAVE_TO_DISK             NSGlobalDomain NSDocumentSaveNewDocumentsToCloud
 
-if [ -n "${UI_FN_KEYS_AS_STANDARD+x}" ]; then
-  if [ "$UI_FN_KEYS_AS_STANDARD" = "true" ]; then
-    defaults write NSGlobalDomain com.apple.keyboard.fnState -bool true
-  else
-    defaults write NSGlobalDomain com.apple.keyboard.fnState -bool false
-  fi
-  log "    set    com.apple.keyboard.fnState = $UI_FN_KEYS_AS_STANDARD"
-fi
-
-[ -n "${UI_DISABLE_RUBBER_BAND+x}" ] && \
-  apply_bool UI_DISABLE_RUBBER_BAND NSGlobalDomain NSScrollViewRubberbanding
+apply_int           UI_SIDEBAR_ICON_SIZE        NSGlobalDomain NSTableViewDefaultSizeMode
+apply_string        UI_SCROLLBAR_BEHAVIOR       NSGlobalDomain AppleShowScrollBars
+apply_bool          UI_FN_KEYS_AS_STANDARD      NSGlobalDomain com.apple.keyboard.fnState
+apply_bool          UI_DISABLE_RUBBER_BAND      NSGlobalDomain NSScrollViewRubberbanding
 
 log "done. Some settings need a restart of the affected app."
 

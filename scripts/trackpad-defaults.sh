@@ -30,54 +30,37 @@ TRACKPAD_TRACKING_SPEED=2.5
 # ============================================================================
 # APPLY
 # ============================================================================
+#
+# Several trackpad settings need writes to MULTIPLE domains because macOS
+# stores trackpad state across (a) the bluetooth driver, (b) the multitouch
+# driver, (c) NSGlobalDomain, and sometimes (d) the per-host NSGlobalDomain.
+# We just call apply_* multiple times against the same VAR — each call is
+# independent and skips cleanly if the var is unset.
 
 log "applying Trackpad defaults..."
 
-# Tap-to-click is set on TWO domains: trackpad device + global UI.
+# Tap-to-click — set on driver + multitouch domains (bool) + global (int).
+# tapBehavior is an int (0/1), not bool, so we map true/false→1/0 first.
+apply_bool TRACKPAD_TAP_TO_CLICK com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking
+apply_bool TRACKPAD_TAP_TO_CLICK com.apple.AppleMultitouchTrackpad                  Clicking
 if [ -n "${TRACKPAD_TAP_TO_CLICK+x}" ]; then
-  if [ "$TRACKPAD_TAP_TO_CLICK" = "true" ]; then
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-    defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
-    defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-    defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
-    log "    set    Clicking + tapBehavior = 1 (tap-to-click on)"
-  else
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool false
-    defaults write com.apple.AppleMultitouchTrackpad Clicking -bool false
-    defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 0
-    defaults -currentHost write NSGlobalDomain com.apple.mouse.tapBehavior -int 0
-    log "    set    Clicking + tapBehavior = 0 (tap-to-click off)"
-  fi
-else
-  log "    skip   tap-to-click (TRACKPAD_TAP_TO_CLICK unset)"
+  case "$TRACKPAD_TAP_TO_CLICK" in
+    true)  TRACKPAD_TAP_TO_CLICK_INT=1 ;;
+    false) TRACKPAD_TAP_TO_CLICK_INT=0 ;;
+    *) warn "TRACKPAD_TAP_TO_CLICK = '$TRACKPAD_TAP_TO_CLICK' (expected true/false)"; TRACKPAD_TAP_TO_CLICK_INT="" ;;
+  esac
+  apply_int             TRACKPAD_TAP_TO_CLICK_INT NSGlobalDomain com.apple.mouse.tapBehavior
+  apply_int_currenthost TRACKPAD_TAP_TO_CLICK_INT NSGlobalDomain com.apple.mouse.tapBehavior
 fi
 
-# Three-finger drag — must enable BOTH the legacy mode and dragLock=false.
-# Modern macOS uses Accessibility → Pointer Control, so we set both surfaces.
-if [ -n "${TRACKPAD_THREE_FINGER_DRAG+x}" ]; then
-  if [ "$TRACKPAD_THREE_FINGER_DRAG" = "true" ]; then
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool true
-    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool true
-    log "    set    TrackpadThreeFingerDrag = true"
-  else
-    defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag -bool false
-    defaults write com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag -bool false
-    log "    set    TrackpadThreeFingerDrag = false"
-  fi
-else
-  log "    skip   three-finger drag (TRACKPAD_THREE_FINGER_DRAG unset)"
-fi
+# Three-finger drag — both driver domains.
+apply_bool TRACKPAD_THREE_FINGER_DRAG com.apple.driver.AppleBluetoothMultitouch.trackpad TrackpadThreeFingerDrag
+apply_bool TRACKPAD_THREE_FINGER_DRAG com.apple.AppleMultitouchTrackpad                  TrackpadThreeFingerDrag
 
-# Natural scroll = inverted in defaults (true = traditional, false = natural)
-if [ -n "${TRACKPAD_NATURAL_SCROLL+x}" ]; then
-  if [ "$TRACKPAD_NATURAL_SCROLL" = "true" ]; then
-    defaults write NSGlobalDomain com.apple.swipescrolldirection -bool true
-  else
-    defaults write NSGlobalDomain com.apple.swipescrolldirection -bool false
-  fi
-  log "    set    com.apple.swipescrolldirection (natural=$TRACKPAD_NATURAL_SCROLL)"
-fi
+# Natural scrolling — single global key.
+apply_bool TRACKPAD_NATURAL_SCROLL NSGlobalDomain com.apple.swipescrolldirection
 
+# Tracking speed — float on global.
 apply_float TRACKPAD_TRACKING_SPEED NSGlobalDomain com.apple.trackpad.scaling
 
 log "done. Some changes take effect on next login."
