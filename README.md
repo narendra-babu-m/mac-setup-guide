@@ -419,59 +419,84 @@ echo 'eval "$(atuin init zsh)"' >> ~/.zshrc && source ~/.zshrc
 
 ## 9. macOS System Configuration
 
-System-level tweaks applied via `defaults write`. Reproducible via committed scripts so a fresh Mac can be brought up to spec in one command.
+System-level tweaks applied via `defaults write` and `brew bundle`. The whole repo is built around the **Phoenix Principle**: a fresh Mac (work or personal) goes from new to ready-to-work in **one day**, not weeks of tribal-knowledge tweaking.
 
-### Finder
+### Quick start (fresh Mac)
 
 ```bash
-bash scripts/finder-defaults.sh
+cd ~ && git clone https://github.com/narendra-babu-m/mac-setup-guide.git
+cd mac-setup-guide
+bash bootstrap.sh
 ```
 
-**Design — config-as-data, not commands**
+That's it. `bootstrap.sh` runs three phases:
 
-The script has two sections:
+1. **Prereqs** — Xcode CLI tools + Homebrew if missing
+2. **brew bundle** — installs everything in `Brewfile` (formulae + casks)
+3. **macOS defaults** — runs every `scripts/*-defaults.sh` in order
 
-- **CONFIG** at the top — every setting is a single `VAR=true|false` (or named value) with a multi-line `# WHY` comment explaining the tradeoff. This is the only thing you edit.
-- **APPLY** below — generic helpers (`apply_bool`, `apply_string`) that read the variables and run the right `defaults write` call.
+Then read `MANUAL_STEPS.md` for the irreducible manual list (Apple ID, FileVault, Touch ID for sudo, GitHub auth, vault restore).
 
-**How to customize for your preferences**
+### Repo layout
 
-| Want this for a setting | Do this in CONFIG |
+```
+mac-setup-guide/
+├── bootstrap.sh                  Single entry point for fresh-Mac setup
+├── Brewfile                      Declarative install list (brew bundle)
+├── MANUAL_STEPS.md               The things macOS won't let us script
+├── README.md
+└── scripts/
+    ├── lib/common.sh             Shared apply_bool/string/int + logging
+    ├── finder-defaults.sh        Path bar, list view, calc-all-sizes, hidden files
+    ├── dock-defaults.sh          Auto-hide, no recents, fast animations
+    ├── screenshot-defaults.sh    ~/Pictures/Screenshots, PNG, no shadow
+    ├── keyboard-defaults.sh      Fast repeat, no smart-quotes/dashes (humanize rule)
+    ├── trackpad-defaults.sh      Tap-to-click, three-finger drag
+    ├── safari-defaults.sh        Develop menu, full URL, privacy
+    ├── general-ui-defaults.sh    Save panels, scroll bars, F-keys
+    └── security-defaults.sh      Screen lock, password delay
+```
+
+### Design — config-as-data with WHYs
+
+Every `*-defaults.sh` script has the same shape:
+
+- **CONFIG** at the top — one `VAR=true|false` (or named value) per setting, each with a multi-line `# WHY` comment explaining the tradeoff.
+- **APPLY** below — uses helpers from `scripts/lib/common.sh` that read the variables and run the right `defaults write` call.
+
+**Customizing**
+
+| Want this | Do this |
 |---|---|
-| Turn ON | `FINDER_X=true` |
-| Turn OFF | `FINDER_X=false` |
-| Leave macOS default untouched | Comment the line out (`# FINDER_X=...`). The helper detects unset variables and skips them — so commenting out is true neutrality, not "force the default value". |
+| Turn ON | `VAR=true` |
+| Turn OFF | `VAR=false` |
+| Leave macOS default untouched | Comment the line out (`# VAR=...`) — helpers detect unset variables and skip them |
 
-Re-run the script anytime; it's idempotent.
-
-**Settings (with rationale)**
-
-| Variable | Default | WHY |
-|---|---|---|
-| `FINDER_SHOW_HIDDEN` | true | Terminal-heavy workflow needs dotfiles + `~/Library` visible. `Cmd+Shift+.` still toggles on the fly. |
-| `FINDER_SHOW_ALL_EXTENSIONS` | true | Prevents disguised-extension surprises (`image.png.exe`). |
-| `FINDER_SHOW_PATHBAR` | true | Click any path segment to jump there. Big nav speedup. |
-| `FINDER_SHOW_STATUSBAR` | true | Item count + free space at a glance. |
-| `FINDER_POSIX_PATH_IN_TITLE` | true | Window title matches `pwd` in your terminal. Same mental model. |
-| `FINDER_DEFAULT_VIEW` | `Nlsv` (list) | List view shows size/date/kind columns and pairs with `calculateAllSizes`. Options: `icnv`, `clmv`, `Flwv`. |
-| `FINDER_DEFAULT_SEARCH_SCOPE` | `SCcf` (current folder) | "This Mac" is rarely what you want. Options: `SCev`, `SCsp`. |
-| `FINDER_EXTENSION_CHANGE_WARNING` | false | Skip the nag — you know what you're doing when you rename. |
-| `FINDER_NEW_WINDOW_TARGET` | `PfHm` (`$HOME`) | Deterministic starting point. |
-| `FINDER_OPEN_IN_TABS` | true | Tabbed nav matches modern browser ergonomics. |
-| `FINDER_CALCULATE_ALL_SIZES` | true | Folder sizes visible. **Tradeoff**: slight Finder lag in huge folders (Downloads, `~/Library`, `node_modules`). Set false if it bites; use `du -sh *` from terminal instead. |
-| `FINDER_NO_DS_STORE_NETWORK` | true | Doesn't pollute SMB/NFS shares for non-Mac users. |
-| `FINDER_NO_DS_STORE_USB` | true | Doesn't pollute USB drives shared with Windows/Linux. |
-| `FINDER_DISABLE_ANIMATIONS` | true | Snappier feel. |
-| `FINDER_ALLOW_QUIT` | true | `Cmd+Q` fully closes Finder. Saves background CPU. |
-| `FINDER_WARN_EMPTY_TRASH` | false | No friction on `Cmd+Shift+Delete`. |
-| `FINDER_AUTO_EMPTY_TRASH_30_DAYS` | true | Self-cleaning trash. |
-
-**Verify after running**
+**Bootstrap flags**
 
 ```bash
-defaults read com.apple.finder AppleShowAllFiles            # → 1
-defaults read com.apple.finder ShowPathbar                  # → 1
-defaults read com.apple.finder | grep -i calculateAllSizes  # → all 1
+bash bootstrap.sh                # everything
+bash bootstrap.sh --skip-brew    # skip software install
+bash bootstrap.sh --only-defaults # only apply defaults scripts
 ```
 
-**Revert** examples are at the bottom of the script (single-key flip, full key delete, nuclear reset).
+**Run a single script in isolation**
+
+```bash
+bash scripts/dock-defaults.sh
+```
+
+Or override a single var ad-hoc:
+```bash
+DOCK_AUTOHIDE=false bash scripts/dock-defaults.sh
+```
+
+### Idempotence + revert
+
+Every script is safe to re-run any number of times. Each ends with a REVERT block showing how to undo individual keys (`defaults write … false`, `defaults delete …`, or rerun the script with the var flipped).
+
+### MDM caveat (corporate Macs)
+
+If your Mac is enrolled in MDM (`profiles status -type enrollment`), some `defaults` writes will be silently overridden by configuration profiles (firewall, FileVault, screen-lock policy, certain Safari settings). The script will still report "set", but the OS may not reflect the change. On a personal Mac this isn't an issue — every script works cleanly.
+
+See `MANUAL_STEPS.md` §6 for the full corporate caveat list.

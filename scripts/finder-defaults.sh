@@ -22,7 +22,7 @@
 #   See the REVERT block at the bottom of this file for examples.
 # ============================================================================
 
-set -euo pipefail
+source "$(dirname "$0")/lib/common.sh"
 
 # ============================================================================
 # CONFIG — Edit me. Each WHY explains the tradeoff so you can decide.
@@ -123,31 +123,7 @@ FINDER_AUTO_EMPTY_TRASH_30_DAYS=true
 PLIST="$HOME/Library/Preferences/com.apple.finder.plist"
 PB=/usr/libexec/PlistBuddy
 
-# apply_bool VAR_NAME DOMAIN KEY
-#   Writes a -bool defaults key only if the variable is set (true or false).
-#   Unset variable (commented-out line) means "skip — leave macOS default".
-apply_bool() {
-  local var=$1 domain=$2 key=$3
-  if [ -z "${!var+x}" ]; then
-    printf "  skip   %-45s (var %s unset)\n" "$key" "$var"
-    return
-  fi
-  defaults write "$domain" "$key" -bool "${!var}"
-  printf "  set    %-45s = %s\n" "$key" "${!var}"
-}
-
-# apply_string VAR_NAME DOMAIN KEY
-apply_string() {
-  local var=$1 domain=$2 key=$3
-  if [ -z "${!var+x}" ]; then
-    printf "  skip   %-45s (var %s unset)\n" "$key" "$var"
-    return
-  fi
-  defaults write "$domain" "$key" -string "${!var}"
-  printf "  set    %-45s = %s\n" "$key" "${!var}"
-}
-
-echo "[finder-defaults] applying..."
+log "applying Finder defaults..."
 
 # Visibility
 apply_bool   FINDER_SHOW_HIDDEN              com.apple.finder      AppleShowAllFiles
@@ -207,8 +183,8 @@ else
 fi
 
 # ─── Apply ──────────────────────────────────────────────────────────────────
-killall Finder 2>/dev/null || true
-echo "[finder-defaults] done. Finder restarted."
+restart_app Finder
+log "done. Finder restarted."
 echo
 echo "Verify a few keys:"
 echo "  defaults read com.apple.finder AppleShowAllFiles"
