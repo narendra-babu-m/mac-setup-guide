@@ -423,33 +423,48 @@ System-level tweaks applied via `defaults write`. Reproducible via committed scr
 
 ### Finder
 
-Run once on a new Mac (or after a preferences reset):
-
 ```bash
 bash scripts/finder-defaults.sh
 ```
 
-**What it sets**
+**Design — config-as-data, not commands**
 
-| Setting | Value | Why |
+The script has two sections:
+
+- **CONFIG** at the top — every setting is a single `VAR=true|false` (or named value) with a multi-line `# WHY` comment explaining the tradeoff. This is the only thing you edit.
+- **APPLY** below — generic helpers (`apply_bool`, `apply_string`) that read the variables and run the right `defaults write` call.
+
+**How to customize for your preferences**
+
+| Want this for a setting | Do this in CONFIG |
+|---|---|
+| Turn ON | `FINDER_X=true` |
+| Turn OFF | `FINDER_X=false` |
+| Leave macOS default untouched | Comment the line out (`# FINDER_X=...`). The helper detects unset variables and skips them — so commenting out is true neutrality, not "force the default value". |
+
+Re-run the script anytime; it's idempotent.
+
+**Settings (with rationale)**
+
+| Variable | Default | WHY |
 |---|---|---|
-| Show hidden files | ON | Dotfiles + library debugging visible by default. `Cmd+Shift+.` still toggles. |
-| Show all extensions | ON | No more `image.png.exe` style surprises. |
-| Path bar | ON | Breadcrumb at the bottom; click any segment to jump. |
-| Status bar | ON | Item count + free space at a glance. |
-| POSIX path in title | ON | Aligns Finder window with terminal `pwd`. |
-| Default view | List (Nlsv) | Most useful with calculate-all-sizes; icon view wastes space. |
-| Default search scope | Current folder (SCcf) | "This Mac" search is rarely what you want. |
-| New windows open at | `$HOME` | Avoids the random "Recents" landing. |
-| Open folders in | Tabs | Keeps window count low. |
-| Calculate all sizes | ON | Folder sizes in list view (slight perf cost on huge folders, accepted tradeoff). |
-| `.DS_Store` on network | OFF | Doesn't pollute SMB/NFS shares. |
-| `.DS_Store` on USB | OFF | Doesn't pollute USB drives shared with non-Macs. |
-| Extension change warning | OFF | Skip the "are you sure" prompt. |
-| Empty trash warning | OFF | Trust the user. |
-| Auto-empty trash | After 30 days | Self-cleaning. |
-| All animations | OFF | Finder feels instant. |
-| `Cmd+Q` quits Finder | ON | Lets you fully close Finder when needed. |
+| `FINDER_SHOW_HIDDEN` | true | Terminal-heavy workflow needs dotfiles + `~/Library` visible. `Cmd+Shift+.` still toggles on the fly. |
+| `FINDER_SHOW_ALL_EXTENSIONS` | true | Prevents disguised-extension surprises (`image.png.exe`). |
+| `FINDER_SHOW_PATHBAR` | true | Click any path segment to jump there. Big nav speedup. |
+| `FINDER_SHOW_STATUSBAR` | true | Item count + free space at a glance. |
+| `FINDER_POSIX_PATH_IN_TITLE` | true | Window title matches `pwd` in your terminal. Same mental model. |
+| `FINDER_DEFAULT_VIEW` | `Nlsv` (list) | List view shows size/date/kind columns and pairs with `calculateAllSizes`. Options: `icnv`, `clmv`, `Flwv`. |
+| `FINDER_DEFAULT_SEARCH_SCOPE` | `SCcf` (current folder) | "This Mac" is rarely what you want. Options: `SCev`, `SCsp`. |
+| `FINDER_EXTENSION_CHANGE_WARNING` | false | Skip the nag — you know what you're doing when you rename. |
+| `FINDER_NEW_WINDOW_TARGET` | `PfHm` (`$HOME`) | Deterministic starting point. |
+| `FINDER_OPEN_IN_TABS` | true | Tabbed nav matches modern browser ergonomics. |
+| `FINDER_CALCULATE_ALL_SIZES` | true | Folder sizes visible. **Tradeoff**: slight Finder lag in huge folders (Downloads, `~/Library`, `node_modules`). Set false if it bites; use `du -sh *` from terminal instead. |
+| `FINDER_NO_DS_STORE_NETWORK` | true | Doesn't pollute SMB/NFS shares for non-Mac users. |
+| `FINDER_NO_DS_STORE_USB` | true | Doesn't pollute USB drives shared with Windows/Linux. |
+| `FINDER_DISABLE_ANIMATIONS` | true | Snappier feel. |
+| `FINDER_ALLOW_QUIT` | true | `Cmd+Q` fully closes Finder. Saves background CPU. |
+| `FINDER_WARN_EMPTY_TRASH` | false | No friction on `Cmd+Shift+Delete`. |
+| `FINDER_AUTO_EMPTY_TRASH_30_DAYS` | true | Self-cleaning trash. |
 
 **Verify after running**
 
@@ -459,4 +474,4 @@ defaults read com.apple.finder ShowPathbar                  # → 1
 defaults read com.apple.finder | grep -i calculateAllSizes  # → all 1
 ```
 
-**Revert** instructions are inline at the bottom of the script.
+**Revert** examples are at the bottom of the script (single-key flip, full key delete, nuclear reset).
