@@ -14,7 +14,7 @@ source "$(dirname "$0")/lib/common.sh"
 # Detection order:
 #   1. SCREENSHOT_LOCATION_OVERRIDE — set explicitly to skip detection.
 #   2. ~/Library/CloudStorage/OneDrive-* (work Mac with OneDrive synced)
-#         → uses <onedrive>/Screenshots so screenshots back up automatically.
+#         → uses <onedrive>/Screenshots if cloud-safe, else local fallback.
 #   3. ~/Pictures/Screenshots (personal Mac fallback, conventional choice).
 # WHY: On the work Mac, OneDrive is the de-facto shared drop-zone — keeping
 #      screenshots inside it means they survive disk wipe and are reachable
@@ -23,11 +23,22 @@ source "$(dirname "$0")/lib/common.sh"
 #      cleanest non-Desktop home that Spotlight + Photos already index.
 #      The DECISION is data-driven: filesystem state at run-time, not user
 #      mood. Re-running the script always resolves to the same path.
+# SAFETY: assert_cloud_safe rejects the OneDrive path if it's a symlink, sits
+#      under a git repo, or is the OneDrive root itself. Cloud sync + git or
+#      symlinks corrupt files silently. On any failure we fall back to local.
+SCREENSHOT_LOCATION=""
 if [ -n "${SCREENSHOT_LOCATION_OVERRIDE:-}" ]; then
   SCREENSHOT_LOCATION="$SCREENSHOT_LOCATION_OVERRIDE"
 elif _onedrive=$(ls -d "$HOME"/Library/CloudStorage/OneDrive-* 2>/dev/null | head -1) && [ -n "$_onedrive" ]; then
-  SCREENSHOT_LOCATION="$_onedrive/Screenshots"
-else
+  _candidate="$_onedrive/Screenshots"
+  if assert_cloud_safe "$_candidate"; then
+    SCREENSHOT_LOCATION="$_candidate"
+  else
+    log "OneDrive path rejected — falling back to ~/Pictures/Screenshots"
+    SCREENSHOT_LOCATION="$HOME/Pictures/Screenshots"
+  fi
+fi
+if [ -z "$SCREENSHOT_LOCATION" ]; then
   SCREENSHOT_LOCATION="$HOME/Pictures/Screenshots"
 fi
 
