@@ -513,6 +513,21 @@ What you must update manually (full checklist + when-to-do-it in `MANUAL_STEPS.m
 - **Login Items** — document in `MANUAL_STEPS.md` §4 (Sonoma+ doesn't expose these to `defaults`)
 - **App-specific extensions** — Raycast / VS Code / browsers have their own cloud sync
 
+### Detecting drift (`validate.sh`)
+
+`sync.sh` pulls Brewfile drift back automatically, but it can't reverse-engineer every System Settings toggle. `validate.sh` closes that loop, read-only:
+
+```bash
+bash ~/mac-setup-guide/validate.sh                # full report
+bash ~/mac-setup-guide/validate.sh --drift-only   # hide OK rows
+bash ~/mac-setup-guide/validate.sh --only finder  # one area
+bash ~/mac-setup-guide/validate.sh --json         # machine-readable
+```
+
+How it works: validate.sh sources each `*-defaults.sh` with `defaults`, `killall`, and `PlistBuddy` shadowed, capturing every write into a table. It then reads live values and reports per-key status: `OK`, `DRIFT`, or `MISSING`. Single source of truth stays in `scripts/` — no second manifest to maintain.
+
+Exit code: `0` if clean, `1` on any drift / missing key. Wire it into a pre-commit hook or a weekly cron if you want.
+
 ### MDM caveat (corporate Macs)
 
 If your Mac is enrolled in MDM (`profiles status -type enrollment`), some `defaults` writes will be silently overridden by configuration profiles (firewall, FileVault, screen-lock policy, certain Safari settings). The script will still report "set", but the OS may not reflect the change. On a personal Mac this isn't an issue — every script works cleanly.

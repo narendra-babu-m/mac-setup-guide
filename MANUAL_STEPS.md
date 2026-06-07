@@ -191,14 +191,19 @@ If there's drift, it overwrites the file and tells you to commit.
 ### When you change a System Settings toggle
 
 System Settings doesn't write to a single deterministic place — there's no
-clean "dump my Mac to a script" inverse. So:
+clean "dump my Mac to a script" inverse. The workflow is:
 
-1. Open the matching `scripts/<area>-defaults.sh`
-2. Find the variable, flip the value (or add a new var + WHY comment)
-3. Run the script to confirm it reproduces the change you made manually
-4. Commit
+1. Run `bash ~/mac-setup-guide/validate.sh --drift-only` — this surfaces
+   every key whose live value no longer matches what the script would set.
+2. For each `DRIFT` row, decide:
+   - **Keep the script's value**: re-run that script to push the script's
+     value back onto the live Mac.
+   - **Adopt the live value**: edit the matching `scripts/<area>-defaults.sh`,
+     update the variable + WHY comment, commit.
+3. Run `validate.sh` again — should be clean.
 
-Example: you turned off Dock magnification via System Settings. Edit
+Example: you turned off Dock magnification via System Settings. validate.sh
+reports `DRIFT  com.apple.dock  magnification  true  0`. Edit
 `scripts/dock-defaults.sh`, set `DOCK_MAGNIFICATION=false`, commit.
 
 ### When you add a new Login Item
@@ -214,7 +219,8 @@ and you're done. Don't try to script them.
 
 ### Checklist (paste into your weekly review)
 
-- [ ] `bash ~/mac-setup-guide/sync.sh` shows no drift
+- [ ] `bash ~/mac-setup-guide/sync.sh` shows no Brewfile drift
+- [ ] `bash ~/mac-setup-guide/validate.sh` shows no defaults drift
 - [ ] Any new System Settings change reflected in a `*-defaults.sh` var
 - [ ] New Login Items documented in MANUAL_STEPS.md §4
 - [ ] Repo committed + pushed

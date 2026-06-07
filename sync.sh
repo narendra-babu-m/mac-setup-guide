@@ -48,11 +48,17 @@ else
   fi
 fi
 
-# ── TODO: defaults sync ────────────────────────────────────────────────────
-# Future: read every defaults domain we manage and report drift between the
-# values you've changed via System Settings vs what's in scripts/*-defaults.sh.
-# For now, edit the script's CONFIG block manually if you change something via
-# System Settings and want it reproducible.
+# ── Defaults drift report ──────────────────────────────────────────────────
+section "Defaults drift (validate.sh)"
+
+if [ -x "$REPO_ROOT/validate.sh" ] || [ -f "$REPO_ROOT/validate.sh" ]; then
+  # Don't fail sync if drift exists — we just want the user to see it.
+  bash "$REPO_ROOT/validate.sh" --drift-only || true
+  echo
+  echo "  Full report: bash $REPO_ROOT/validate.sh"
+else
+  echo "  (validate.sh missing — skipping)"
+fi
 
 section "Reminders"
 cat <<EOF
