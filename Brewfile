@@ -65,6 +65,7 @@ cask "stats"             # system stats in menu bar
 # ── Casks: dev ──────────────────────────────────────────────────────────────
 cask "visual-studio-code"
 cask "iterm2"
+cask "ghostty"           # GPU-accelerated terminal
 cask "warp"              # AI terminal
 cask "github"            # GitHub Desktop
 cask "docker"
