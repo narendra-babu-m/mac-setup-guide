@@ -19,20 +19,20 @@ tap "hashicorp/tap", trusted: true
 tap "cloudfoundry/tap", trusted: true
 # WHY: hAIperspace `hai` CLI — internal SAP AI tool. Memory: HAI = SAP work only.
 tap "haiperspace/hai", "https://github.tools.sap/hAIperspace/hai-homebrew", trusted: true
-# WHY: design fonts (font-crimson-pro, ia-writer-quattro, inter, lora) for vault/docs.
-tap "homebrew/cask-fonts"
+# WHY: design fonts (font-crimson-pro, ia-writer-quattro, inter, lora) for
+#      vault/docs. NOTE: tap homebrew/cask-fonts deprecated (2026-06); fonts
+#      now live in homebrew/cask. Untapped on 2026-06-12 — no-op for users.
 
 # ── Formulae: terminal essentials ───────────────────────────────────────────
 brew "bat"           # cat with syntax highlighting
 brew "btop"          # gorgeous resource monitor
 brew "eza"           # modern ls replacement
 brew "fastfetch"     # system info
-brew "neofetch"      # legacy system info (kept while muscle memory persists)
+brew "tealdeer"      # tldr fork, actively maintained (replaces deprecated tldr)
 brew "fzf"           # fuzzy finder
 brew "htop"          # process monitor
 brew "procs"         # ps replacement
 brew "ripgrep"       # fast grep
-brew "tldr"          # simplified man pages
 brew "tmux"          # terminal multiplexer (legacy / SSH compatibility)
 brew "zellij"        # terminal multiplexer (modern, layouts, sessions)
 brew "tree"          # directory viewer
@@ -80,7 +80,6 @@ brew "hashicorp/tap/terraform"
 
 # ── Formulae: SAP / cloud ──────────────────────────────────────────────────
 brew "cloudfoundry/tap/cf-cli@8"                # primary cf CLI for BTP
-brew "cloudfoundry/tap/cf-cli@7", link: false   # kept available, not linked
 brew "haiperspace/hai/hai"                      # SAP HAI CLI (work only)
 
 # ── Formulae: media / OCR / Android ────────────────────────────────────────
@@ -102,9 +101,6 @@ brew "powerlevel10k"
 # ── Formulae: AI / agents ───────────────────────────────────────────────────
 brew "fabric"        # AI workflow CLI (Daniel Miessler)
 brew "happy-coder"   # CLI for AI coding agents from mobile
-
-# ── Formulae: games ─────────────────────────────────────────────────────────
-brew "allureofthestars"   # tactical roguelike (terminal)
 
 # ── Casks: productivity ─────────────────────────────────────────────────────
 cask "raycast"           # launcher (replaces Spotlight + Maccy + Rectangle)
@@ -150,12 +146,16 @@ cask "localsend"         # WiFi file transfer
 cask "caffeine"          # prevent sleep
 cask "miniforge"         # conda for Apple Silicon
 
-# ── Casks: emulators / retro gaming (CEH lab + nostalgia) ──────────────────
-cask "openemu"           # all-in-one retro front end
+# ── Casks: emulators / retro gaming (personal Mac) ─────────────────────────
+# WARNING (2026-06-12): casks marked DEPRECATED below fail macOS Gatekeeper
+# and will be disabled on 2026-09-01. They still work today. Plan: install
+# direct from each project's website using the managed-mac-user-scope-install
+# pattern, then remove the deprecated cask line here.
+cask "openemu"           # DEPRECATED 2026-09-01 — all-in-one retro front end
 cask "retroarch"         # libretro multi-system
 cask "dolphin"           # GameCube/Wii
-cask "flycast"           # Dreamcast
-cask "melonds"           # Nintendo DS
+cask "flycast"           # DEPRECATED 2026-09-01 — Dreamcast
+cask "melonds"           # DEPRECATED 2026-09-01 — Nintendo DS
 cask "mgba-app"          # Game Boy Advance
 cask "pcsx2"             # PlayStation 2
 cask "ppsspp-emulator"   # PSP
