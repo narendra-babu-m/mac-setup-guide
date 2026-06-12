@@ -24,12 +24,16 @@ DOCK_AUTOHIDE_TIME_MODIFIER=0
 DOCK_AUTOHIDE_DELAY=0
 
 # Icon size (pixels)
-# WHY: Smaller dock = less screen real estate when visible.
-DOCK_TILESIZE=42
+# WHY: 54 is the macOS default. Tried 42 (smaller, more screen real estate)
+#      but the icons became hard to target on a 13" laptop screen and the
+#      ergonomic gain wasn't worth the squint. 54 won the live test.
+DOCK_TILESIZE=54
 
-# Disable magnification
-# WHY: Cute, distracting, and slows targeting in muscle memory.
-DOCK_MAGNIFICATION=false
+# Magnification on hover
+# WHY: Originally off ("cute, distracting"). Live experience: with autohide
+#      on + tilesize 54, magnification adds useful target feedback and the
+#      "distraction" never materialised. Adopted.
+DOCK_MAGNIFICATION=true
 
 # Don't show recently used apps in Dock
 # WHY: You launch via Raycast/Spotlight; recents column is noise.
