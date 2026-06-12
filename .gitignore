@@ -1,0 +1,15 @@
+# macOS noise
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editor cruft
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Local-only experiments
+/tmp-*
+/scratch/
