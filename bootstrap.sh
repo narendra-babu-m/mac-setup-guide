@@ -90,6 +90,16 @@ else
   echo "  (skipping defaults per flag)"
 fi
 
+# ── Phase 2.5: dotfile symlinks ─────────────────────────────────────────────
+if [ "$SKIP_DEFAULTS" = "false" ]; then
+  section "Phase 2.5: dotfile symlinks"
+  if [ -x "$SCRIPTS/dotfiles-link.sh" ]; then
+    bash "$SCRIPTS/dotfiles-link.sh" || echo "  (continuing despite error in dotfiles-link.sh)"
+  else
+    echo "  skip: dotfiles-link.sh not found"
+  fi
+fi
+
 # ── Phase 3: manual reminders ───────────────────────────────────────────────
 section "Phase 3: things you must do manually"
 cat <<EOF

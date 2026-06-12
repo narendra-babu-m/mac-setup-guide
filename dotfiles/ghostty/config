@@ -1,0 +1,111 @@
+# ============================================================================
+# Ghostty — Naren's config
+#   Path: ~/Library/Application Support/com.mitchellh.ghostty/config
+#   Source of truth: ~/mac-setup-guide/dotfiles/ghostty/config (symlinked)
+# ============================================================================
+# Reload at runtime: cmd+shift+, in Ghostty.
+# Validate after edits: ghostty +validate-config
+# Reference: https://ghostty.org/docs/config/reference
+#
+# IMPORTANT: ghostty's config parser does NOT accept trailing `# comments`
+# on the same line as a value. Comments must be on their own line, prefixed
+# with #. (Learned the hard way during initial setup.)
+
+# ── Font ────────────────────────────────────────────────────────────────────
+# FiraCode Nerd Font: ligatures (=> -> != ===) for code, full Nerd Font
+# glyph set so prompts, devicons, and TUI apps (yazi, lazygit, btop) render
+# all icons. Already installed in ~/Library/Fonts.
+font-family = FiraCode Nerd Font
+font-size = 14
+# Contextual alternates → ligatures on
+font-feature = +calt
+font-feature = +liga
+# Crisper rendering on retina
+font-thicken = true
+
+# ── Theme ───────────────────────────────────────────────────────────────────
+# Dark, low-eyestrain, AAA contrast. Matches the palette Naren uses in
+# VS Code + Obsidian. Browse alternatives: ghostty +list-themes
+theme = Catppuccin Mocha
+
+# ── Window ──────────────────────────────────────────────────────────────────
+window-padding-x = 8
+window-padding-y = 8
+# Even padding when content shrinks
+window-padding-balance = true
+# Restore window/tab state on relaunch
+window-save-state = always
+# Native tabs in titlebar (when not running zellij)
+macos-titlebar-style = tabs
+# Left-option = Alt for vim/emacs/zsh muscle memory
+macos-option-as-alt = true
+# Wider gamut on M-series Macs
+window-colorspace = display-p3
+
+# ── Cursor ──────────────────────────────────────────────────────────────────
+cursor-style = block
+# Ported from iTerm2 "Blinking Cursor = false"
+cursor-style-blink = false
+shell-integration-features = cursor,sudo,title
+
+# ── Scrollback ──────────────────────────────────────────────────────────────
+# 100000 lines — iTerm2 had 1000 (default), woefully short for Hermes
+# sessions. 100k lines × ~100 bytes ≈ 10MB. Cheap.
+scrollback-limit = 100000
+# Ported from iTerm2 CopySelection=1
+copy-on-select = clipboard
+
+# ── Mouse / clipboard ───────────────────────────────────────────────────────
+mouse-hide-while-typing = true
+# OSC 52 clipboard from inside zellij/tmux works
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+
+# ── Bell ────────────────────────────────────────────────────────────────────
+# Visual + system notification, no audio. Mirrors iTerm2 "Visual Bell = true,
+# Silence Bell = false" intent. The `no-` prefix disables a feature.
+bell-features = no-audio,attention,title,system
+
+# ── Confirmations ───────────────────────────────────────────────────────────
+# Never want a "are you sure?" dialog when closing a finished pane inside
+# a zellij grid. Zellij itself prompts when something's still running.
+confirm-close-surface = false
+quit-after-last-window-closed = false
+quit-after-last-window-closed-delay = 1m
+
+# ── Quick terminal (drop-down, replaces iTerm2 hotkey window) ───────────────
+# Instant scratch terminal from anywhere via global hotkey.
+# Bound to ⌥+grave (option+`) — avoids cmd+` (window cycle) and ⌘+space (Raycast).
+quick-terminal-position = top
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0.12
+keybind = global:alt+grave_accent=toggle_quick_terminal
+
+# ── Keybinds ────────────────────────────────────────────────────────────────
+# Reload config without restart
+keybind = cmd+shift+comma=reload_config
+# Native tabs (work outside zellij)
+keybind = cmd+t=new_tab
+keybind = cmd+w=close_surface
+keybind = cmd+shift+]=next_tab
+keybind = cmd+shift+[=previous_tab
+# Splits (when not in zellij — zellij handles its own once attached)
+keybind = cmd+d=new_split:right
+keybind = cmd+shift+d=new_split:down
+keybind = cmd+alt+left=goto_split:left
+keybind = cmd+alt+right=goto_split:right
+keybind = cmd+alt+up=goto_split:up
+keybind = cmd+alt+down=goto_split:down
+# Font zoom
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+0=reset_font_size
+
+# ── Misc ────────────────────────────────────────────────────────────────────
+# Don't auto-update — Brewfile owns version pinning.
+auto-update = off
+window-inherit-working-directory = true
+window-inherit-font-size = true
+# Matches iTerm2's setting; broadest TUI compatibility.
+term = xterm-256color

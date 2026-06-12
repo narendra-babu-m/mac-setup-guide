@@ -18,6 +18,7 @@ brew "procs"         # ps replacement
 brew "ripgrep"       # fast grep
 brew "tldr"          # simplified man pages
 brew "tmux"          # terminal multiplexer
+brew "zellij"        # terminal multiplexer (modern, layouts, sessions)
 brew "tree"          # directory viewer
 brew "yazi"          # TUI file manager
 brew "zoxide"        # smart cd

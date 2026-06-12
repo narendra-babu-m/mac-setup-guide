@@ -1,0 +1,192 @@
+// ============================================================================
+// Zellij — Naren's config.kdl
+//   Path: ~/.config/zellij/config.kdl
+//   Source of truth: ~/mac-setup-guide/dotfiles/zellij/config.kdl (symlinked)
+// ============================================================================
+// Reference: https://zellij.dev/documentation/configuration
+
+// WHY default theme = catppuccin-mocha: matches Ghostty + VS Code + Obsidian.
+theme "catppuccin-mocha"
+
+// WHY simplified_ui = false: keep Nerd Font glyphs (FiraCode is installed).
+simplified_ui false
+
+// WHY pane_frames = true: visible borders make grids of agents glanceable —
+// the whole point of the fleet workflow.
+pane_frames true
+
+// WHY default_layout = compact: fewer status bars, more screen for output.
+// Keep "default" for first-time launch (taught keybinds), and use named
+// layouts (fleet) explicitly.
+default_layout "compact"
+
+// WHY copy_on_select = true: matches Ghostty + iTerm2 behavior.
+copy_on_select true
+copy_clipboard "system"
+
+// WHY scrollback_editor = nvim if present, else $EDITOR — open the pane's
+// scrollback as a buffer in your editor with one keybind.
+scrollback_editor "/usr/bin/env"
+
+// WHY mouse_mode = true: clickable tabs, drag pane resize, scroll wheel.
+mouse_mode true
+
+// WHY mirror_session = false: zellij default; you almost never want
+// multi-user mirrored sessions.
+mirror_session false
+
+// WHY session_serialization = true + pane_viewport_serialization = true:
+// reattach restores not just sessions but their last-rendered output.
+// Critical for "close lid → reopen → agents are still there with context".
+session_serialization true
+pane_viewport_serialization true
+
+// WHY auto_layout = true: when you spawn a new pane, zellij rearranges
+// the existing ones intelligently rather than cramming.
+auto_layout true
+
+// WHY ui rounded_corners: cosmetic, matches modern macOS aesthetic.
+ui {
+    pane_frames {
+        rounded_corners true
+        hide_session_name false
+    }
+}
+
+// ── Keybinds ────────────────────────────────────────────────────────────────
+// WHY override the default Ctrl+B prefix with Ctrl+A: Ctrl+B clashes with
+// readline's "move-back-one-char" used everywhere in shell editing.
+// Ctrl+A in shells is "move-to-line-start" — also useful, but at the prefix
+// level zellij intercepts it cleanly and you can pass through with `Ctrl+a a`.
+keybinds clear-defaults=true {
+    normal {
+        // Default mode — pass everything through to the shell.
+    }
+
+    // Locked mode — disables all zellij keybinds (so vim/emacs/etc don't
+    // collide). Toggle with Ctrl+g.
+    locked {
+        bind "Ctrl g" { SwitchToMode "Normal"; }
+    }
+
+    // Pane mode — enter with Ctrl+p, then single keys.
+    pane {
+        bind "Ctrl p" "Esc" { SwitchToMode "Normal"; }
+        bind "h" "Left"  { MoveFocus "Left"; }
+        bind "l" "Right" { MoveFocus "Right"; }
+        bind "j" "Down"  { MoveFocus "Down"; }
+        bind "k" "Up"    { MoveFocus "Up"; }
+        bind "n" { NewPane; SwitchToMode "Normal"; }
+        bind "d" { NewPane "Down"; SwitchToMode "Normal"; }
+        bind "r" { NewPane "Right"; SwitchToMode "Normal"; }
+        bind "x" { CloseFocus; SwitchToMode "Normal"; }
+        bind "f" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
+        bind "z" { TogglePaneFrames; SwitchToMode "Normal"; }
+        bind "w" { ToggleFloatingPanes; SwitchToMode "Normal"; }
+        bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "Normal"; }
+        bind "c" { SwitchToMode "RenamePane"; PaneNameInput 0; }
+    }
+
+    // Tab mode — Ctrl+t.
+    tab {
+        bind "Ctrl t" "Esc" { SwitchToMode "Normal"; }
+        bind "n" { NewTab; SwitchToMode "Normal"; }
+        bind "x" { CloseTab; SwitchToMode "Normal"; }
+        bind "h" "Left" "Up" "k" { GoToPreviousTab; }
+        bind "l" "Right" "Down" "j" { GoToNextTab; }
+        bind "1" { GoToTab 1; SwitchToMode "Normal"; }
+        bind "2" { GoToTab 2; SwitchToMode "Normal"; }
+        bind "3" { GoToTab 3; SwitchToMode "Normal"; }
+        bind "4" { GoToTab 4; SwitchToMode "Normal"; }
+        bind "5" { GoToTab 5; SwitchToMode "Normal"; }
+        bind "r" { SwitchToMode "RenameTab"; TabNameInput 0; }
+        bind "s" { ToggleActiveSyncTab; SwitchToMode "Normal"; }   // broadcast
+    }
+
+    // Resize mode — Ctrl+n. Stays in mode for chained resizes.
+    resize {
+        bind "Ctrl n" "Esc" { SwitchToMode "Normal"; }
+        bind "h" "Left"  { Resize "Increase Left"; }
+        bind "j" "Down"  { Resize "Increase Down"; }
+        bind "k" "Up"    { Resize "Increase Up"; }
+        bind "l" "Right" { Resize "Increase Right"; }
+        bind "H" { Resize "Decrease Left"; }
+        bind "J" { Resize "Decrease Down"; }
+        bind "K" { Resize "Decrease Up"; }
+        bind "L" { Resize "Decrease Right"; }
+        bind "=" "+" { Resize "Increase"; }
+        bind "-" { Resize "Decrease"; }
+    }
+
+    // Scroll mode — Ctrl+s. vim-style movement through scrollback.
+    scroll {
+        bind "Ctrl s" "Esc" { SwitchToMode "Normal"; }
+        bind "j" "Down" { ScrollDown; }
+        bind "k" "Up"   { ScrollUp; }
+        bind "Ctrl d" { HalfPageScrollDown; }
+        bind "Ctrl u" { HalfPageScrollUp; }
+        bind "Ctrl f" "PageDown" { PageScrollDown; }
+        bind "Ctrl b" "PageUp"   { PageScrollUp; }
+        bind "g" { ScrollToTop; }
+        bind "G" { ScrollToBottom; }
+        bind "/" { SwitchToMode "EnterSearch"; SearchInput 0; }
+        bind "e" { EditScrollback; SwitchToMode "Normal"; }
+    }
+    search {
+        bind "Esc" "Ctrl s" { SwitchToMode "Normal"; }
+        bind "n" { Search "down"; }
+        bind "p" { Search "up"; }
+        bind "c" { SearchToggleOption "CaseSensitivity"; }
+        bind "w" { SearchToggleOption "Wrap"; }
+        bind "o" { SearchToggleOption "WholeWord"; }
+    }
+    "entersearch" {
+        bind "Esc" { SwitchToMode "Scroll"; }
+        bind "Enter" { SwitchToMode "Search"; }
+    }
+    "renametab" {
+        bind "Esc" { UndoRenameTab; SwitchToMode "Tab"; }
+        bind "Enter" { SwitchToMode "Tab"; }
+    }
+    "renamepane" {
+        bind "Esc" { UndoRenamePane; SwitchToMode "Pane"; }
+        bind "Enter" { SwitchToMode "Pane"; }
+    }
+    "session" {
+        bind "Ctrl o" "Esc" { SwitchToMode "Normal"; }
+        bind "d" { Detach; }
+        bind "w" { LaunchOrFocusPlugin "session-manager" { floating true; }; SwitchToMode "Normal"; }
+    }
+
+    // Shared — work in any mode.
+    shared_except "locked" {
+        bind "Ctrl g" { SwitchToMode "Locked"; }
+        bind "Ctrl p" { SwitchToMode "Pane"; }
+        bind "Ctrl t" { SwitchToMode "Tab"; }
+        bind "Ctrl n" { SwitchToMode "Resize"; }
+        bind "Ctrl s" { SwitchToMode "Scroll"; }
+        bind "Ctrl o" { SwitchToMode "Session"; }
+        bind "Ctrl q" { Quit; }
+        // Hyper-fast pane switching without entering pane mode (Alt-h/j/k/l).
+        bind "Alt h" "Alt Left"  { MoveFocusOrTab "Left"; }
+        bind "Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
+        bind "Alt j" "Alt Down"  { MoveFocus "Down"; }
+        bind "Alt k" "Alt Up"    { MoveFocus "Up"; }
+        // Quick new pane / split.
+        bind "Alt n" { NewPane; }
+        bind "Alt =" "Alt +" { Resize "Increase"; }
+        bind "Alt -" { Resize "Decrease"; }
+        bind "Alt [" { PreviousSwapLayout; }
+        bind "Alt ]" { NextSwapLayout; }
+    }
+}
+
+// ── Plugins ────────────────────────────────────────────────────────────────
+// Bundled plugins ship with zellij — no install needed.
+plugins {
+    tab-bar       { path "tab-bar"; }
+    status-bar    { path "status-bar"; }
+    strider       { path "strider"; }
+    compact-bar   { path "compact-bar"; }
+    session-manager { path "session-manager"; }
+}

@@ -1,0 +1,75 @@
+// ============================================================================
+// fleet.kdl — 4-pane Hermes agent fleet
+//   Path: ~/.config/zellij/layouts/fleet.kdl
+//   Source of truth: ~/mac-setup-guide/dotfiles/zellij/layouts/fleet.kdl
+//
+// Launch:  zellij --layout fleet
+//   or:    fleet            (alias from ~/.zshrc, see mac-setup-guide README)
+//
+// Layout: 2x2 grid + a thin "ops" tab for monitoring.
+//   ┌─────────────┬─────────────┐
+//   │  agent-1    │  agent-2    │
+//   ├─────────────┼─────────────┤
+//   │  agent-3    │  agent-4    │
+//   └─────────────┴─────────────┘
+// ============================================================================
+
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true { plugin location="zellij:tab-bar"; }
+        pane size=2 borderless=true { plugin location="zellij:status-bar"; }
+    }
+
+    // ── Tab 1: 4-agent grid ────────────────────────────────────────────────
+    tab name="fleet" focus=true {
+        pane split_direction="horizontal" {
+            pane split_direction="vertical" {
+                pane name="agent-1" {
+                    cwd "~"
+                    // Uncomment to auto-launch:
+                    // command "hermes"
+                }
+                pane name="agent-2" {
+                    cwd "~"
+                    // command "hermes"
+                }
+            }
+            pane split_direction="vertical" {
+                pane name="agent-3" {
+                    cwd "~"
+                    // command "hermes"
+                }
+                pane name="agent-4" {
+                    cwd "~"
+                    // command "hermes"
+                }
+            }
+        }
+    }
+
+    // ── Tab 2: ops — logs, system, scratch ─────────────────────────────────
+    tab name="ops" {
+        pane split_direction="vertical" {
+            pane name="logs" size="60%" {
+                cwd "~"
+                // Tail Hermes session logs by default — adjust path.
+                // command "tail"
+                // args "-f" "~/.hermes/logs/latest.log"
+            }
+            pane split_direction="horizontal" {
+                pane name="btop" {
+                    command "btop"
+                }
+                pane name="scratch" {
+                    cwd "~"
+                }
+            }
+        }
+    }
+
+    // ── Tab 3: scratch — single full-width pane for ad-hoc work ────────────
+    tab name="scratch" {
+        pane name="scratch" { cwd "~"; }
+    }
+}

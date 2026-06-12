@@ -97,6 +97,26 @@ These apps need a one-time launch + settings before they're useful.
 - Init atuin: `echo 'eval "$(atuin init zsh)"' >> ~/.zshrc`
 - Init zoxide: `echo 'eval "$(zoxide init zsh)"' >> ~/.zshrc`
 
+### Ghostty (preferred terminal for Hermes)
+- First launch: macOS will prompt to allow it. Right-click → Open if Gatekeeper grumbles.
+- Config is symlinked from `~/mac-setup-guide/dotfiles/ghostty/config` by `dotfiles-link.sh`.
+- Validate any config edits: `ghostty +validate-config`
+- Reload at runtime: ⌘⇧, (cmd+shift+comma)
+- Quick terminal hotkey: ⌥+` (option+grave) — first invocation will prompt for Accessibility permission.
+
+### Zellij (terminal multiplexer for parallel agent panes)
+- Brewfile installs it. Configs symlinked by `dotfiles-link.sh`:
+  - `~/.config/zellij/config.kdl` → keybinds, theme, session serialization
+  - `~/.config/zellij/layouts/fleet.kdl` → 4-pane Hermes agent grid
+  - `~/.config/zsh/zellij.zsh` → `fleet`, `zj`, `zja`, `zjl`, `zjk` aliases
+- ONE-TIME `~/.zshrc` edit (because `~/.zshrc` itself is not in this repo —
+  it's protected user state). Add this line near your other aliases:
+  ```bash
+  [ -f "$HOME/.config/zsh/zellij.zsh" ] && source "$HOME/.config/zsh/zellij.zsh"
+  ```
+- Verify: `source ~/.zshrc && fleet` — should open a 2x2 grid of panes.
+- Reattach a detached fleet later: `zjl` to list, `zja <session-name>` to attach.
+
 ### Obsidian
 - Open vault from cloned location (NOT default Obsidian-Vault)
 - Sign in to Obsidian Sync if used (Naren rule: prefer git remotes)
