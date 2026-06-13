@@ -117,6 +117,18 @@ These apps need a one-time launch + settings before they're useful.
 - Verify: `source ~/.zshrc && fleet` — should open a 2x2 grid of panes.
 - Reattach a detached fleet later: `zjl` to list, `zja <session-name>` to attach.
 
+### Git + delta (global ~/.gitconfig)
+- Run by `bootstrap.sh` Phase 2 via `scripts/git-defaults.sh`. Idempotent —
+  re-running on an already-configured Mac is a no-op (skip lines).
+- Settings written: `core.pager=delta`, `interactive.diffFilter`, delta
+  cosmetics, `merge.conflictstyle=diff3`, `diff.colorMoved=default`.
+- DO NOT re-add these as `git config --global ...` lines in `~/.zshrc`.
+  Multiple shells starting in parallel (Zellij panes, Ghostty windows opened
+  back-to-back, scripted spawns) race on `~/.gitconfig.lock` and the loser
+  prints: `error: could not lock config file ~/.gitconfig: File exists`.
+  These are write-once settings — they belong in setup, not shell init.
+- Verify: `git config --global --get core.pager` should print `delta`.
+
 ### Obsidian
 - Open vault from cloned location (NOT default Obsidian-Vault)
 - Sign in to Obsidian Sync if used (Naren rule: prefer git remotes)
