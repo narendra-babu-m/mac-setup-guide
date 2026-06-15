@@ -71,20 +71,32 @@ bell-features = no-audio,attention,title,system
 # Never want a "are you sure?" dialog when closing a finished pane inside
 # a zellij grid. Zellij itself prompts when something's still running.
 confirm-close-surface = false
-quit-after-last-window-closed = false
-quit-after-last-window-closed-delay = 1m
 
-# ── Quick terminal (drop-down, replaces iTerm2 hotkey window) ───────────────
-# Instant scratch terminal from anywhere via global hotkey.
-# Bound to ⌥+grave (option+`) — avoids cmd+` (window cycle) and ⌘+space (Raycast).
-quick-terminal-position = top
-quick-terminal-screen = main
-quick-terminal-animation-duration = 0.12
-keybind = global:alt+grave_accent=toggle_quick_terminal
+# Note: `quit-after-last-window-closed` left at default (true). Keeping it
+# false makes Ghostty linger as a windowless background process, which
+# causes ⌘+Tab to "lose" the app and Mission Control to show nothing.
+# If you want hotkey-panel behaviour back, bring back the quick-terminal
+# block below — but read the comment there first.
+
+# ── Quick terminal — DELIBERATELY DISABLED ──────────────────────────────────
+# We tried `quick-terminal-position = top` + `keybind global:alt+grave_accent
+# =toggle_quick_terminal` (an iTerm2 hotkey-window port). It works, BUT:
+#   - The drop-down is an NSPanel, not an NSWindow. macOS excludes panels
+#     from Mission Control, App Exposé, and the ⌘+Tab app switcher. So
+#     three-finger swipe up/down + ⌘+Tab all silently ignore it.
+#   - Combined with quit-after-last-window-closed=false (also reverted),
+#     closing every real window leaves Ghostty alive only as a panel host,
+#     which makes ⌘+Tab "skip" Ghostty entirely.
+# Cost > benefit: lose the drop-down, get all macOS window semantics back.
+# Launch Ghostty via Raycast/Spotlight (~150ms) when you need a scratch term.
+# DO NOT re-add quick-terminal-* lines without reading
+# references/dotfile-config-gotchas.md first.
 
 # ── Keybinds ────────────────────────────────────────────────────────────────
 # Reload config without restart
 keybind = cmd+shift+comma=reload_config
+# Top-level window (was missing — only had cmd+t for tabs)
+keybind = cmd+n=new_window
 # Native tabs (work outside zellij)
 keybind = cmd+t=new_tab
 keybind = cmd+w=close_surface
