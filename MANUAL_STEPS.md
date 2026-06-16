@@ -97,13 +97,6 @@ These apps need a one-time launch + settings before they're useful.
 - Init atuin: `echo 'eval "$(atuin init zsh)"' >> ~/.zshrc`
 - Init zoxide: `echo 'eval "$(zoxide init zsh)"' >> ~/.zshrc`
 
-### Ghostty (preferred terminal for Hermes)
-- First launch: macOS will prompt to allow it. Right-click → Open if Gatekeeper grumbles.
-- Config is symlinked from `~/mac-setup-guide/dotfiles/ghostty/config` by `dotfiles-link.sh`.
-- Validate any config edits: `ghostty +validate-config`
-- Reload at runtime: ⌘⇧, (cmd+shift+comma)
-- Quick terminal hotkey: ⌥+` (option+grave) — first invocation will prompt for Accessibility permission.
-
 ### Zellij (terminal multiplexer for parallel agent panes)
 - Brewfile installs it. Configs symlinked by `dotfiles-link.sh`:
   - `~/.config/zellij/config.kdl` → keybinds, theme, session serialization

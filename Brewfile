@@ -113,8 +113,7 @@ cask "soduto"            # KDE Connect for macOS (kde-connect-mac-bridge skill)
 
 # ── Casks: dev ──────────────────────────────────────────────────────────────
 cask "visual-studio-code"
-cask "iterm2"
-cask "ghostty"           # GPU-accelerated terminal (Hermes default)
+cask "iterm2"            # Hermes default terminal
 cask "warp"              # AI terminal
 cask "github"            # GitHub Desktop
 cask "docker"

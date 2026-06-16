@@ -18,10 +18,6 @@ source "$REPO_ROOT/scripts/lib/common.sh"
 
 # ── Toggles (top-of-file config-as-data, with WHYs) ─────────────────────────
 
-# Ghostty config — ported iTerm2 prefs + modern features (quick-terminal,
-# Kitty graphics, scrollback 100k). See dotfiles/ghostty/config for details.
-LINK_GHOSTTY=true
-
 # Zellij config + fleet layout — multiplexer for parallel agent panes.
 LINK_ZELLIJ=true
 
@@ -53,12 +49,6 @@ link_into() {
   ln -s "$src" "$dest"
   printf "    link   %s -> %s\n" "$dest" "$src"
 }
-
-if [ "$LINK_GHOSTTY" = "true" ]; then
-  log "Ghostty"
-  link_into "ghostty/config" \
-    "$HOME/Library/Application Support/com.mitchellh.ghostty/config"
-fi
 
 if [ "$LINK_ZELLIJ" = "true" ]; then
   log "Zellij"
