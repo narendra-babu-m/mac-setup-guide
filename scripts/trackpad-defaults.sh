@@ -15,8 +15,13 @@ source "$(dirname "$0")/lib/common.sh"
 TRACKPAD_TAP_TO_CLICK=true
 
 # Three-finger drag (hold three fingers + move to drag a window/selection)
-# WHY: Massive ergonomic win — drag without holding click. Worth re-learning.
-TRACKPAD_THREE_FINGER_DRAG=true
+# WHY: TRADEOFF — three-finger drag steals the 3-finger-up gesture from
+# Mission Control (macOS silently demotes Mission Control to FOUR fingers
+# when this is enabled). Naren tried it Jun-2026 and hated the conflict —
+# 3-finger swipe in iTerm2 was selecting text instead of opening Mission
+# Control. Disabled. If a future Naren wants drag back, accept that
+# Mission Control = 4 fingers from then on.
+TRACKPAD_THREE_FINGER_DRAG=false
 
 # Natural scrolling (content moves with fingers, like iPhone)
 # WHY: Keep ON to match iPad/iPhone muscle memory; toggle OFF if you ssh to
