@@ -140,7 +140,8 @@ These apps need a one-time launch + settings before they're useful.
 
 ## 5. Restore Personal State
 
-- [ ] **Hermes config**: `git clone` your hermes profile repo (or rerun `hermes setup`)
+- [ ] **Hermes config**: `git clone` your hermes profile repo (or rerun `hermes setup`).
+      Full migration playbook (Discord bot, voice mode, Notion integration, Cisco/Umbrella gotchas, secrets handling): [`docs/hermes-on-personal-mac.md`](docs/hermes-on-personal-mac.md)
 - [ ] **Obsidian vaults**:
   ```bash
   mkdir -p ~/Vaults && cd ~/Vaults
