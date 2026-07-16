@@ -41,11 +41,18 @@ UI_SCROLLBAR_BEHAVIOR="WhenScrolling"
 # Use F1, F2, … as standard function keys (need fn for media keys)
 # WHY: F-keys matter for IDEs, debuggers, terminals. Media keys are rarer.
 # NOTE: macOS 14+ (Sonoma/Sequoia/Tahoe) split this into two keys:
-#   - NSGlobalDomain com.apple.keyboard.fnState (legacy, still honoured)
+#   - NSGlobalDomain com.apple.keyboard.fnState (legacy, semantic INVERTED on macOS 26)
 #   - com.apple.HIToolbox AppleFnUsageType (modern: 0=nothing,1=input src,2=emoji,3=dictation)
-# Both are written below. If F-keys still need fn after a logout, toggle the
-# Function Keys switch in System Settings → Keyboard → Keyboard Shortcuts…
-# (the GUI poke is the only fully reliable path on recent macOS).
+# SEMANTIC FLIP (verified 2026-07-16 on macOS 26.5.1):
+#   fnState=0 → F-keys act as standard function keys
+#   fnState=1 → media keys default, need fn for F1/F2/…
+# This is the OPPOSITE of pre-Tahoe. The apply line below uses
+# apply_bool_inverted so the CONFIG toggle keeps reading naturally
+# (UI_FN_KEYS_AS_STANDARD=true → key written as false/0).
+# If F-keys still need fn after a logout, toggle the Function Keys switch in
+# System Settings → Keyboard → Keyboard Shortcuts… — CLI writes to fnState
+# don't hit the HID daemon on macOS 26; the GUI poke is the only reliable
+# path to re-arm the daemon after a bootstrap run.
 UI_FN_KEYS_AS_STANDARD=true
 UI_FN_USAGE_TYPE=0
 
@@ -71,7 +78,7 @@ apply_bool_inverted UI_SAVE_TO_DISK             NSGlobalDomain NSDocumentSaveNew
 
 apply_int           UI_SIDEBAR_ICON_SIZE        NSGlobalDomain NSTableViewDefaultSizeMode
 apply_string        UI_SCROLLBAR_BEHAVIOR       NSGlobalDomain AppleShowScrollBars
-apply_bool          UI_FN_KEYS_AS_STANDARD      NSGlobalDomain         com.apple.keyboard.fnState
+apply_bool_inverted UI_FN_KEYS_AS_STANDARD  NSGlobalDomain         com.apple.keyboard.fnState
 apply_int           UI_FN_USAGE_TYPE            com.apple.HIToolbox    AppleFnUsageType
 apply_bool          UI_DISABLE_RUBBER_BAND      NSGlobalDomain NSScrollViewRubberbanding
 

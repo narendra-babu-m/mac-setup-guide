@@ -2,6 +2,17 @@
 # ============================================================================
 # trackpad-defaults.sh — Tap-to-click, three-finger drag, swipe gestures.
 # Edit CONFIG section. Comment out a var to leave macOS default.
+#
+# macOS 26 HID-daemon pitfall (verified 2026-07-16):
+# ---------------------------------------------------
+# On macOS 26.5.1+ (Tahoe), the trackpad daemon can end up in a state where
+# the plist values read "correct" via `defaults read` but the live gestures
+# behave as if disabled. The daemon only re-reads its state when System
+# Settings pokes it. After a fresh-Mac bootstrap run: if 3-/4-finger swipes
+# don't work but `defaults read com.apple.AppleMultitouchTrackpad` shows the
+# right values, open System Settings → Trackpad → More Gestures and toggle
+# each gesture switch off then on. That forces the daemon to re-arm and the
+# gestures stick. Same class of bug as fnState in general-ui-defaults.sh.
 # ============================================================================
 
 source "$(dirname "$0")/lib/common.sh"
