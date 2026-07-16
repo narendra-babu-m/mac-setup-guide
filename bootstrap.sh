@@ -78,7 +78,8 @@ if [ "$SKIP_DEFAULTS" = "false" ]; then
     trackpad-defaults.sh \
     general-ui-defaults.sh \
     security-defaults.sh \
-    git-defaults.sh
+    git-defaults.sh \
+    default-apps.sh
   do
     if [ -x "$SCRIPTS/$script" ]; then
       bold "→ $script"

@@ -37,6 +37,10 @@ brew "tmux"          # terminal multiplexer (legacy / SSH compatibility)
 brew "zellij"        # terminal multiplexer (modern, layouts, sessions)
 brew "tree"          # directory viewer
 brew "yazi"          # TUI file manager
+brew "duti"          # WHY: set macOS default apps by UTI (Launch Services) — the CLI
+                     # form of Finder's "Open with → Change All". Used by
+                     # scripts/default-apps.sh to keep Xcode from squatting on
+                     # .swift/.json/.plist/.md/etc.
 brew "zoxide"        # smart cd
 brew "ncdu"          # disk usage TUI
 brew "glow"          # markdown viewer
