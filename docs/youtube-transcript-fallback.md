@@ -26,13 +26,15 @@ Fresh-Mac bootstrap: `bash bootstrap.sh` (which runs `brew bundle`) installs bot
 ```bash
 cd /tmp && yt-dlp \
   --write-auto-subs --write-subs \
-  --sub-langs "en.*,en" \
+  --sub-langs "en-orig,en" \
   --skip-download --sub-format vtt \
   --no-update \
   -o "yt-%(id)s.%(ext)s" \
   "https://www.youtube.com/watch?v=VIDEO_ID"
 # produces yt-VIDEO_ID.en.vtt (and yt-VIDEO_ID.en-orig.vtt if both exist)
 ```
+
+> **Why `--sub-langs "en-orig,en"` and not `"en.*"`?** YouTube rate-limits (HTTP 429) after ~4 subtitle downloads per video. A greedy glob like `en.*` matches `en`, `en-orig`, `en-en`, `en-US`, `en-de-DE`, ... and reliably trips the 429, which yt-dlp treats as a fatal error even when the useful tracks already landed. The narrow two-language list gets us the auto-caption master (`en-orig`) plus the standard track (`en`) and stops cleanly.
 
 This gets you the VTT file, but auto-generated YouTube subtitles have a **rolling-caption problem**: each cue duplicates the previous cue's text plus one new phrase. A 1h20m video produces ~5000 cues and ~200KB of massively duplicated text. You need the dedup step below to make it usable.
 
@@ -77,18 +79,26 @@ def extract_video_id(s):
     return s
 
 def download_vtt(vid, wd):
-    subprocess.run(["yt-dlp", "--write-auto-subs", "--write-subs",
-                    "--sub-langs", "en.*,en", "--skip-download",
-                    "--sub-format", "vtt", "--no-update",
-                    "-o", os.path.join(wd, "%(id)s.%(ext)s"),
-                    f"https://www.youtube.com/watch?v={vid}"],
-                   check=True, capture_output=True)
-    for suf in (".en.vtt", ".en-orig.vtt", ".en-US.vtt"):
+    # Narrow --sub-langs list: YouTube rate-limits (HTTP 429) after ~4 sub
+    # downloads. Greedy globs like "en.*" trip it and yt-dlp exits non-zero
+    # even when useful tracks landed. "en-orig,en" gets auto-cap master + std.
+    r = subprocess.run(["yt-dlp", "--write-auto-subs", "--write-subs",
+                        "--sub-langs", "en-orig,en", "--skip-download",
+                        "--sub-format", "vtt", "--no-update",
+                        "-o", os.path.join(wd, "%(id)s.%(ext)s"),
+                        f"https://www.youtube.com/watch?v={vid}"],
+                       capture_output=True)
+    # Non-zero is fine if a VTT landed (429 on a 3rd track is not fatal).
+    vtts = [f for f in os.listdir(wd) if f.endswith(".vtt")] if os.path.isdir(wd) else []
+    if not vtts:
+        sys.exit(f"No VTT produced\n{r.stderr.decode(errors='replace')}")
+    for suf in (".en-orig.vtt", ".en.vtt", ".en-US.vtt", ".en-en.vtt"):
         p = os.path.join(wd, vid + suf)
-        if os.path.exists(p): return p
-    for f in os.listdir(wd):
-        if f.endswith(".vtt"): return os.path.join(wd, f)
-    sys.exit("No VTT produced")
+        if os.path.exists(p) and os.path.getsize(p) > 0: return p
+    for f in vtts:
+        p = os.path.join(wd, f)
+        if os.path.getsize(p) > 0: return p
+    sys.exit("No non-empty VTT produced")
 
 def parse_vtt(path):
     with open(path) as f: lines = f.readlines()
