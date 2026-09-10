@@ -254,3 +254,21 @@ and you're done. Don't try to script them.
 If you notice yourself thinking "I'll remember to add this later" —
 that's the moment to stop and add it now. Future-you on a new Mac at
 2 a.m. won't remember.
+
+---
+
+## 9. Common Recipes (`docs/`)
+
+Reproducible one-command recipes for tasks that come up repeatedly. Each
+one is standalone — no Hermes / Obsidian / vault required, just the
+Brewfile-installed tools.
+
+- [`docs/hermes-on-personal-mac.md`](docs/hermes-on-personal-mac.md) —
+  Full Hermes migration playbook (Discord bot, voice mode, Notion,
+  Cisco/Umbrella gotchas, secrets handling).
+- [`docs/youtube-transcript-fallback.md`](docs/youtube-transcript-fallback.md) —
+  Reproduce a clean, deduplicated, timestamped transcript from any
+  YouTube video via `yt-dlp` + local VTT dedup, for when the standard
+  Python library (`youtube-transcript-api`) is broken. Requires
+  `yt-dlp` only (already in Brewfile). Includes a standalone
+  `~/bin/yt-transcript` script for use before Hermes is installed.

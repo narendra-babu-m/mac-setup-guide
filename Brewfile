@@ -88,7 +88,7 @@ brew "haiperspace/hai/hai"                      # SAP HAI CLI (work only)
 
 # ── Formulae: media / OCR / Android ────────────────────────────────────────
 brew "ffmpeg"        # video transcoding (ASCII video, songsee, etc.)
-brew "yt-dlp"        # YouTube DL (vault ingest)
+brew "yt-dlp"        # YouTube DL (vault ingest, transcript fallback — see docs/youtube-transcript-fallback.md)
 brew "exiftool"      # photo/video metadata (HDD photo sort skill)
 brew "tesseract"     # OCR engine (ocr-and-documents skill)
 brew "pandoc"        # markdown ↔ everything
