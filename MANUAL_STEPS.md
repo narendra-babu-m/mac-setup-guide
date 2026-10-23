@@ -140,7 +140,7 @@ These apps need a one-time launch + settings before they're useful.
 
 ## 5. Restore Personal State
 
-- [ ] **Migration day (SAP Mac replacement)**: when swapping to a new SAP-issued Mac, the full old→new runbook (pre-flight disk cleanup, repo audit, OneDrive upload plan, state-dir strategy, secrets inventory, Monday checklist) lives at [`docs/migration-day.md`](docs/migration-day.md). Walk it top to bottom starting Thursday-before-handover.
+- [ ] **Migration day (SAP Mac replacement)**: when swapping to a new SAP-issued Mac, the full old→new runbook (pre-flight disk cleanup, repo audit, OneDrive upload plan, state-dir strategy, secrets inventory, Monday checklist) lives at [`docs/migration-day.md`](docs/migration-day.md). The tick-off view — including the OneDrive sync-gap finding, app-settings backup, and the 32-step Claude Code full-parity restore — is in [`docs/migration-checklist.md`](docs/migration-checklist.md) and mirrored to Notion (parent: 🖥️ Mac Setup hub). Walk them top to bottom starting Thursday-before-handover.
 - [ ] **Hermes config**: `git clone` your hermes profile repo (or rerun `hermes setup`).
       Full migration playbook (Discord bot, voice mode, Notion integration, Cisco/Umbrella gotchas, secrets handling): [`docs/hermes-on-personal-mac.md`](docs/hermes-on-personal-mac.md)
 - [ ] **Obsidian vaults**:
