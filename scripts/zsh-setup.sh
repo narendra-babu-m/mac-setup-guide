@@ -27,7 +27,35 @@ ZSH_DIR="$REPO_ROOT/dotfiles/zsh"
 log()  { printf "  [zsh-setup] %s\n" "$*"; }
 warn() { printf "  [zsh-setup] WARN: %s\n" "$*" >&2; }
 
-# ── 1. oh-my-zsh ─────────────────────────────────────────────────────────────
+# ── 1. Place .zshrc + .zprofile FIRST (before OMZ install) ───────────────────
+# WHY: OMZ installer's setup_zshrc() only honours KEEP_ZSHRC=yes if ~/.zshrc
+# ALREADY EXISTS when the installer runs. Fresh Mac = no .zshrc = OMZ writes
+# its template unconditionally. Place real files first so KEEP_ZSHRC guards fire.
+# [SOURCE: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh]
+if [ ! -f "$HOME/.zshrc" ]; then
+  cp "$ZSH_DIR/zshrc.template" "$HOME/.zshrc"
+  log ".zshrc placed from template (pre-OMZ)"
+  warn ".zshrc contains REPLACE_FROM_BITWARDEN placeholder — edit after boot."
+else
+  # Check if it's the OMZ default (user has 611-line real one, OMZ default is ~107)
+  LINES=$(wc -l < "$HOME/.zshrc")
+  if [ "$LINES" -lt 150 ] && grep -q "^export ZSH=\"\\\$HOME/\\.oh-my-zsh\"" "$HOME/.zshrc" 2>/dev/null \
+     && ! grep -q "powerlevel10k\|p10k" "$HOME/.zshrc" 2>/dev/null; then
+    warn "Detected OMZ default .zshrc ($LINES lines, no p10k ref). Backing up + replacing."
+    mv "$HOME/.zshrc" "$HOME/.zshrc.omz-default.bak.$(date +%s)"
+    cp "$ZSH_DIR/zshrc.template" "$HOME/.zshrc"
+    log ".zshrc replaced with real template"
+  else
+    log ".zshrc exists ($LINES lines, looks custom) — leaving alone"
+  fi
+fi
+
+if [ ! -f "$HOME/.zprofile" ]; then
+  cp "$ZSH_DIR/zprofile.template" "$HOME/.zprofile"
+  log ".zprofile placed from template (pre-OMZ)"
+fi
+
+# ── 2. oh-my-zsh ─────────────────────────────────────────────────────────────
 if [ -d "$HOME/.oh-my-zsh" ]; then
   log "oh-my-zsh already installed, skipping"
 else
@@ -94,22 +122,9 @@ else
   log ".p10k.zsh linked"
 fi
 
-# ── 6. .zshrc (templated copy, not symlink) ──────────────────────────────────
-if [ -f "$HOME/.zshrc" ]; then
-  log ".zshrc exists on this machine — leaving alone. Compare manually with $ZSH_DIR/zshrc.template"
-else
-  cp "$ZSH_DIR/zshrc.template" "$HOME/.zshrc"
-  log ".zshrc copied from template"
-  warn ".zshrc contains placeholder 'REPLACE_FROM_BITWARDEN' for MII_PASS — edit it."
-fi
-
-# ── 7. .zprofile (templated copy) ────────────────────────────────────────────
-if [ -f "$HOME/.zprofile" ]; then
-  log ".zprofile exists — leaving alone"
-else
-  cp "$ZSH_DIR/zprofile.template" "$HOME/.zprofile"
-  log ".zprofile copied from template"
-fi
+# ── 6. .zshrc + .zprofile — handled at Step 1 (pre-OMZ) ──────────────────────
+# NOTE: moved to Step 1 to prevent OMZ from overwriting on fresh Mac.
+# [SOURCE: subagent research 2026-11-03, ohmyzsh install.sh asymmetry]
 
 log ""
 log "zsh setup done."

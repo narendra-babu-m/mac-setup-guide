@@ -123,6 +123,18 @@ if [ "$SKIP_DEFAULTS" = "false" ]; then
   fi
 fi
 
+# ── Phase 2.8: iTerm2 (prefs + dynamic profiles + shell integration) ────────
+# Needs: dotfiles/iterm2/com.googlecode.iterm2.plist (export from OLD Mac first).
+# Will warn + skip gracefully if plist missing.
+if [ "$SKIP_DEFAULTS" = "false" ]; then
+  section "Phase 2.8: iTerm2"
+  if [ -x "$SCRIPTS/iterm2-setup.sh" ]; then
+    bash "$SCRIPTS/iterm2-setup.sh" || echo "  (continuing despite error in iterm2-setup.sh)"
+  else
+    echo "  skip: iterm2-setup.sh not found"
+  fi
+fi
+
 # ── Phase 3: manual reminders ───────────────────────────────────────────────
 section "Phase 3: things you must do manually"
 cat <<EOF
