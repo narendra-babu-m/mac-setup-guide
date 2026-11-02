@@ -74,7 +74,7 @@ brew "sqlite"
 brew "kubernetes-cli"
 brew "kubectx"       # kubectl context/namespace switcher
 brew "k9s"
-brew "azure-cli"
+# WHY: azure-cli migrated from homebrew/core → homebrew/cask (2026). Must be cask now.
 brew "ollama", restart_service: :changed   # local LLMs (auto-restart on upgrade)
 brew "wget"
 brew "curl"
@@ -113,15 +113,14 @@ cask "rectangle"         # window snapping (fallback if Raycast WM not configure
 cask "hiddenbar"         # menu bar icon manager
 cask "stats"             # system stats in menu bar
 cask "only-switch"       # toggle macOS settings from menu bar
-cask "soduto"            # KDE Connect for macOS (kde-connect-mac-bridge skill)
 
 # ── Casks: dev ──────────────────────────────────────────────────────────────
 cask "visual-studio-code"
 cask "iterm2"            # Hermes default terminal
-cask "github"            # GitHub Desktop
-cask "docker"
+cask "docker-desktop"    # renamed upstream from `cask "docker"` (2026)
 cask "bruno"             # API client
 cask "lens"              # Kubernetes IDE
+cask "azure-cli"         # Azure CLI — migrated from brew formula → cask (2026)
 cask "android-platform-tools"   # adb/fastboot (samsung-adb skill)
 cask "btp"               # SAP BTP CLI installer (cask wraps signed binary)
 cask "font-fira-code-nerd-font"
@@ -134,8 +133,7 @@ cask "brave-browser"
 cask "microsoft-edge"
 
 # ── Casks: media ────────────────────────────────────────────────────────────
-cask "iina"              # video player (replaces VLC)
-cask "vlc"               # fallback / specific format support
+cask "iina"              # video player (mpv-based). Dropped VLC — IINA covers all common formats.
 
 # ── Casks: utilities ────────────────────────────────────────────────────────
 cask "appcleaner"
