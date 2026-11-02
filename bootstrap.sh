@@ -102,6 +102,17 @@ if [ "$SKIP_DEFAULTS" = "false" ]; then
   fi
 fi
 
+# ── Phase 2.6: VS Code extensions ───────────────────────────────────────────
+# Interactive SAP opt-in. Set SAP_INSTALL=true (or =false) to pre-answer.
+if [ "$SKIP_DEFAULTS" = "false" ]; then
+  section "Phase 2.6: VS Code extensions"
+  if [ -x "$SCRIPTS/vscode-extensions.sh" ]; then
+    bash "$SCRIPTS/vscode-extensions.sh" || echo "  (continuing despite error in vscode-extensions.sh)"
+  else
+    echo "  skip: vscode-extensions.sh not found"
+  fi
+fi
+
 # ── Phase 3: manual reminders ───────────────────────────────────────────────
 section "Phase 3: things you must do manually"
 cat <<EOF
