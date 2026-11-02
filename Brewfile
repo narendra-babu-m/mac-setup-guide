@@ -118,12 +118,9 @@ cask "soduto"            # KDE Connect for macOS (kde-connect-mac-bridge skill)
 # ── Casks: dev ──────────────────────────────────────────────────────────────
 cask "visual-studio-code"
 cask "iterm2"            # Hermes default terminal
-cask "warp"              # AI terminal
 cask "github"            # GitHub Desktop
 cask "docker"
 cask "bruno"             # API client
-cask "tableplus"         # database GUI
-cask "proxyman"          # HTTP proxy
 cask "lens"              # Kubernetes IDE
 cask "android-platform-tools"   # adb/fastboot (samsung-adb skill)
 cask "btp"               # SAP BTP CLI installer (cask wraps signed binary)
@@ -131,9 +128,6 @@ cask "font-fira-code-nerd-font"
 
 # ── Casks: AI ───────────────────────────────────────────────────────────────
 cask "claude"
-cask "antigravity"       # Google Antigravity (agent orchestration)
-cask "antigravity-cli"
-cask "antigravity-ide"
 
 # ── Casks: browsers ─────────────────────────────────────────────────────────
 cask "brave-browser"
