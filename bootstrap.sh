@@ -113,6 +113,16 @@ if [ "$SKIP_DEFAULTS" = "false" ]; then
   fi
 fi
 
+# ── Phase 2.7: zsh (oh-my-zsh + p10k + plugins + modular configs) ───────────
+if [ "$SKIP_DEFAULTS" = "false" ]; then
+  section "Phase 2.7: zsh"
+  if [ -x "$SCRIPTS/zsh-setup.sh" ]; then
+    bash "$SCRIPTS/zsh-setup.sh" || echo "  (continuing despite error in zsh-setup.sh)"
+  else
+    echo "  skip: zsh-setup.sh not found"
+  fi
+fi
+
 # ── Phase 3: manual reminders ───────────────────────────────────────────────
 section "Phase 3: things you must do manually"
 cat <<EOF
