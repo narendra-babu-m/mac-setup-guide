@@ -8,10 +8,21 @@
 # after macOS upgrades, run it on a personal Mac you buy in three years.
 #
 # Usage:
-#   bash bootstrap.sh                    # run all phases
-#   bash bootstrap.sh --skip-brew        # skip brew install (already done)
-#   bash bootstrap.sh --skip-defaults    # only install software
-#   bash bootstrap.sh --only-defaults    # only apply defaults scripts
+#   bash bootstrap.sh                        # minimal profile (default)
+#   bash bootstrap.sh --profile=sap-work     # SAP + Hermes + LaunchAgents
+#   bash bootstrap.sh --skip-brew            # skip brew install (already done)
+#   bash bootstrap.sh --skip-defaults        # only install software
+#   bash bootstrap.sh --only-defaults        # only apply defaults scripts
+#
+# Profiles:
+#   minimal   (default)  Core setup — brew, defaults, zsh, iTerm2. No SAP/Hermes.
+#   sap-work             Everything in minimal + SAP VS Code extensions,
+#                        Hermes Agent install, LaunchAgents loaded.
+#
+# Env var overrides (set before invoking — profile sets defaults, these win):
+#   SAP_INSTALL=true|false   Force SAP VS Code extensions on/off
+#   SETUP_HERMES=0|1         Force Hermes install on/off
+#   LOAD_AGENTS=0|1          Force LaunchAgent loading on/off
 # ============================================================================
 
 set -euo pipefail
@@ -22,9 +33,11 @@ SCRIPTS="$REPO_ROOT/scripts"
 SKIP_BREW=false
 SKIP_DEFAULTS=false
 ONLY_DEFAULTS=false
+PROFILE="minimal"
 
 for arg in "$@"; do
   case "$arg" in
+    --profile=*)     PROFILE="${arg#--profile=}" ;;
     --skip-brew)     SKIP_BREW=true ;;
     --skip-defaults) SKIP_DEFAULTS=true ;;
     --only-defaults) ONLY_DEFAULTS=true; SKIP_BREW=true ;;
@@ -36,11 +49,40 @@ for arg in "$@"; do
   esac
 done
 
+# ── Profile → env var defaults (env vars override profile) ───────────────────
+case "$PROFILE" in
+  minimal)
+    : "${SAP_INSTALL:=false}"
+    : "${SETUP_HERMES:=0}"
+    : "${LOAD_AGENTS:=0}"
+    ;;
+  sap-work)
+    : "${SAP_INSTALL:=true}"
+    : "${SETUP_HERMES:=1}"
+    : "${LOAD_AGENTS:=1}"
+    ;;
+  *)
+    echo "Unknown profile: $PROFILE (valid: minimal, sap-work)"; exit 2
+    ;;
+esac
+export SAP_INSTALL SETUP_HERMES LOAD_AGENTS
+
 bold()    { printf "\033[1m%s\033[0m\n" "$*"; }
 section() { printf "\n\033[1;34m── %s ──\033[0m\n" "$*"; }
 
 # ── Phase 0: prereqs ────────────────────────────────────────────────────────
 section "Phase 0: prerequisites"
+
+bold "Profile: $PROFILE  (SAP_INSTALL=$SAP_INSTALL SETUP_HERMES=$SETUP_HERMES LOAD_AGENTS=$LOAD_AGENTS)"
+
+# Run preflight doctor if available
+if [ -x "$SCRIPTS/doctor.sh" ]; then
+  bold "Running preflight health check..."
+  bash "$SCRIPTS/doctor.sh" || {
+    echo "  ⚠ Preflight found issues. Run 'bash scripts/doctor.sh --fix' or fix manually."
+    echo "  Continuing anyway (WARNs are OK, only FAILs block)..."
+  }
+fi
 
 if ! xcode-select -p >/dev/null 2>&1; then
   bold "Installing Xcode Command Line Tools (will prompt GUI)..."

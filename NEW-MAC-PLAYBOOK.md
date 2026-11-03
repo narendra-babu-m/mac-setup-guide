@@ -90,8 +90,8 @@ cannot be removed` and lock conflicts. **Stop OLD before using NEW:**
 
 ```
 launchctl unload ~/Library/LaunchAgents/ai.hermes.gateway.plist
-launchctl unload ~/Library/LaunchAgents/com.narendra.hai-proxy-hermes.plist
-launchctl unload ~/Library/LaunchAgents/com.narendra.hermes-litellm-watchdog.plist
+launchctl unload ~/Library/LaunchAgents/local.hermes-stack.hai-proxy.plist
+launchctl unload ~/Library/LaunchAgents/local.hermes-stack.litellm-watchdog.plist
 ```
 
 ### 8. Hyperspace AI.app not in brew-cask

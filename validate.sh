@@ -301,4 +301,143 @@ fi
 if [ "$DRIFT" -gt 0 ] || [ "$MISSING" -gt 0 ]; then
   exit 1
 fi
+
+# ── Post-bootstrap validation (software + tools) ────────────────────────────
+# These checks run AFTER the defaults drift check and use the same status format.
+POST_OK=0; POST_DRIFT=0; POST_MISSING=0
+POST_ROWS=()
+
+post_check() {
+  local status="$1" label="$2" detail="$3"
+  case "$status" in
+    OK)      POST_OK=$((POST_OK + 1)) ;;
+    DRIFT)   POST_DRIFT=$((POST_DRIFT + 1)) ;;
+    MISSING) POST_MISSING=$((POST_MISSING + 1)) ;;
+  esac
+  POST_ROWS+=("${status}|${label}|${detail}")
+}
+
+# 1. Brewfile: compare brew list count vs Brewfile entries
+if [ -f "$REPO_DIR/Brewfile" ]; then
+  BREWFILE_COUNT="$(grep -cE '^(brew|cask|tap) ' "$REPO_DIR/Brewfile" 2>/dev/null || echo 0)"
+  BREW_INSTALLED="$(brew list 2>/dev/null | wc -l | tr -d ' ')"
+  if [ "${BREW_INSTALLED:-0}" -ge "${BREWFILE_COUNT:-0}" ]; then
+    post_check "OK" "brew packages" "installed=$BREW_INSTALLED ≥ Brewfile=$BREWFILE_COUNT"
+  else
+    post_check "DRIFT" "brew packages" "installed=$BREW_INSTALLED < Brewfile=$BREWFILE_COUNT"
+  fi
+fi
+
+# 2. VS Code extensions count
+if command -v code >/dev/null 2>&1; then
+  VSCODE_EXT_COUNT="$(code --list-extensions 2>/dev/null | wc -l | tr -d ' ')"
+  if [ "${VSCODE_EXT_COUNT:-0}" -gt 0 ]; then
+    post_check "OK" "vscode extensions" "count=$VSCODE_EXT_COUNT"
+  else
+    post_check "DRIFT" "vscode extensions" "none installed"
+  fi
+else
+  post_check "MISSING" "vscode" "code CLI not found in PATH"
+fi
+
+# 3. oh-my-zsh + 4 key plugins
+if [ -d "$HOME/.oh-my-zsh" ]; then
+  OMZ_PLUGINS_MISSING=()
+  for plug in zsh-autosuggestions zsh-syntax-highlighting fzf-tab zsh-completions; do
+    if [ ! -d "$HOME/.oh-my-zsh/custom/plugins/$plug" ]; then
+      OMZ_PLUGINS_MISSING+=("$plug")
+    fi
+  done
+  if [ ${#OMZ_PLUGINS_MISSING[@]} -eq 0 ]; then
+    post_check "OK" "oh-my-zsh + plugins" "all 4 custom plugins present"
+  else
+    post_check "DRIFT" "oh-my-zsh plugins" "missing: ${OMZ_PLUGINS_MISSING[*]}"
+  fi
+else
+  post_check "MISSING" "oh-my-zsh" "~/.oh-my-zsh not found"
+fi
+
+# 4. p10k config
+if [ -f "$HOME/.p10k.zsh" ]; then
+  post_check "OK" "p10k config" "~/.p10k.zsh present"
+else
+  post_check "MISSING" "p10k config" "~/.p10k.zsh not found"
+fi
+
+# 5. Hermes (only if SETUP_HERMES was true or profile=sap-work)
+if [ "${SETUP_HERMES:-0}" = "1" ]; then
+  if command -v hermes >/dev/null 2>&1 || [ -x "$HOME/.local/bin/hermes" ]; then
+    HERMES_VER="$("$HOME/.local/bin/hermes" --version 2>/dev/null | head -1 || hermes --version 2>/dev/null | head -1 || echo "unknown")"
+    post_check "OK" "hermes" "version=$HERMES_VER"
+  else
+    post_check "MISSING" "hermes" "hermes CLI not found"
+  fi
+fi
+
+# 6. LaunchAgents (only if LOAD_AGENTS was true)
+if [ "${LOAD_AGENTS:-0}" = "1" ]; then
+  LOADED_AGENTS="$(launchctl list 2>/dev/null | grep -c hermes || true)"
+  if [ "${LOADED_AGENTS:-0}" -gt 0 ]; then
+    post_check "OK" "launchagents" "$LOADED_AGENTS hermes-related agents loaded"
+  else
+    post_check "MISSING" "launchagents" "no hermes agents in launchctl list"
+  fi
+fi
+
+# 7. iTerm2 prefs custom folder
+ITERM_PLIST="$HOME/Library/Preferences/com.googlecode.iterm2.plist"
+if [ -f "$ITERM_PLIST" ]; then
+  ITERM_CUSTOM_DIR="$(/usr/bin/defaults read com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true)"
+  if [ -n "$ITERM_CUSTOM_DIR" ]; then
+    post_check "OK" "iterm2 prefs" "custom folder=$ITERM_CUSTOM_DIR"
+  else
+    post_check "DRIFT" "iterm2 prefs" "PrefsCustomFolder not set"
+  fi
+fi
+
+# ── Render post-bootstrap checks ────────────────────────────────────────────
+if [ ${#POST_ROWS[@]} -gt 0 ]; then
+  if [ "$JSON" = "1" ]; then
+    # JSON output for post-bootstrap is appended as a separate block to stdout
+    printf '{"post_bootstrap": {"ok": %d, "drift": %d, "missing": %d}, "checks": [\n' \
+      "$POST_OK" "$POST_DRIFT" "$POST_MISSING"
+    i=0; total=${#POST_ROWS[@]}
+    for row in "${POST_ROWS[@]}"; do
+      IFS='|' read -r status label detail <<<"$row"
+      [ "$DRIFT_ONLY" = "1" ] && [ "$status" = "OK" ] && continue
+      sep=","; [ $((++i)) -eq "$total" ] && sep=""
+      printf '  {"status":"%s","check":"%s","detail":"%s"}%s\n' \
+        "$status" "$label" "$detail" "$sep"
+    done
+    printf ']}\n'
+  else
+    printf "\n  Post-bootstrap checks\n"
+    printf "  ─────────────────────────────────────────────────────────────────────────────\n"
+    printf "  %-7s %-25s %s\n" "STATUS" "CHECK" "DETAIL"
+    printf "  %-7s %-25s %s\n" "------" "-----" "------"
+    for row in "${POST_ROWS[@]}"; do
+      IFS='|' read -r status label detail <<<"$row"
+      [ "$DRIFT_ONLY" = "1" ] && [ "$status" = "OK" ] && continue
+      color=""; reset=""
+      if [ -t 1 ]; then
+        reset=$'\033[0m'
+        case "$status" in
+          DRIFT)   color=$'\033[31m' ;;
+          MISSING) color=$'\033[33m' ;;
+          OK)      color=$'\033[32m' ;;
+        esac
+      fi
+      printf "  ${color}%-7s${reset} %-25s %s\n" "$status" "$label" "$detail"
+    done
+    printf "\n  Post-bootstrap:  %d OK,  %d DRIFT,  %d MISSING\n\n" \
+      "$POST_OK" "$POST_DRIFT" "$POST_MISSING"
+  fi
+fi
+
+# Final exit
+TOTAL_DRIFT=$((DRIFT + POST_DRIFT))
+TOTAL_MISSING=$((MISSING + POST_MISSING))
+if [ "$TOTAL_DRIFT" -gt 0 ] || [ "$TOTAL_MISSING" -gt 0 ]; then
+  exit 1
+fi
 exit 0

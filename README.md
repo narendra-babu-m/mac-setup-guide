@@ -1,7 +1,34 @@
 # Mac Setup — Apps, Tools & Productivity Guide
 
-> **Machine**: MacBook (Apple Silicon) — I576292
+> **Machine**: MacBook (Apple Silicon)
 > **Last updated**: April 2026
+
+---
+
+## Quickstart
+
+Fresh Mac? One command:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/narendra-babu-m/mac-setup-guide/main/install.sh | bash
+```
+
+Migrating from another Mac? See [NEW-MAC-PLAYBOOK.md](NEW-MAC-PLAYBOOK.md).
+
+SAP work setup (adds Hermes, LaunchAgents, SAP VS Code extensions)?
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/narendra-babu-m/mac-setup-guide/main/install.sh | bash -s -- --profile=sap-work
+```
+
+## Profiles
+
+| Profile | What's included | Env var equivalents |
+|---------|----------------|---------------------|
+| `minimal` (default) | Xcode CLT, Homebrew, Brewfile, macOS defaults, zsh, iTerm2, VS Code (community extensions) | `SAP_INSTALL=false SETUP_HERMES=0 LOAD_AGENTS=0` |
+| `sap-work` | Everything in minimal + SAP VS Code extensions, Hermes Agent install, LaunchAgents loaded | `SAP_INSTALL=true SETUP_HERMES=1 LOAD_AGENTS=1` |
+
+Power users: env vars override profile defaults (e.g. `SETUP_HERMES=1 bash bootstrap.sh --profile=minimal`).
 
 ---
 

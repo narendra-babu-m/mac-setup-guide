@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.narendra.hermes-litellm-watchdog</string>
+    <string>local.hermes-stack.litellm-watchdog</string>
 
     <key>ProgramArguments</key>
     <array>

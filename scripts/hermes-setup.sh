@@ -57,7 +57,7 @@ else
 fi
 
 # ── Step 4: hai binary symlink (for LaunchAgent compatibility) ───────────────
-# LaunchAgents (specifically com.narendra.hai-proxy-hermes) expect
+# LaunchAgents (specifically local.hermes-stack.hai-proxy) expect
 # /opt/homebrew/bin/hai. Migrated Macs have hai at ~/.local/bin/hai.
 if [ -f "$HOME/.local/bin/hai" ] && [ ! -e "/opt/homebrew/bin/hai" ]; then
   log "Symlinking ~/.local/bin/hai -> /opt/homebrew/bin/hai (for LaunchAgent)"
@@ -93,7 +93,7 @@ if [ "${LOAD_AGENTS:-0}" = "1" ]; then
     done
 
     # Load them. hai-proxy FIRST (gateway depends on it for HAI provider).
-    for name in com.narendra.hai-proxy-hermes com.narendra.hermes-litellm-watchdog ai.hermes.gateway; do
+    for name in local.hermes-stack.hai-proxy local.hermes-stack.litellm-watchdog ai.hermes.gateway; do
       plist="$LAUNCH_AGENTS_DST/$name.plist"
       if [ -f "$plist" ]; then
         launchctl load -w "$plist" 2>&1 | head -2 || true
