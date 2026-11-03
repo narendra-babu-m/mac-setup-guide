@@ -154,6 +154,14 @@ cask "microsoft-edge"
 cask "iina"              # video player (mpv-based). Dropped VLC — IINA covers all common formats.
 
 # ── Casks: utilities ────────────────────────────────────────────────────────
+# WHY: vorssaint — menu-bar toolkit covering a dozen paid utilities in one GPL
+#      app. Overlaps with: Rectangle/Loop (window snap), Maccy (clipboard
+#      history), AppCleaner (uninstaller), Stats (system monitor), AlDente
+#      (keep awake), CleanShot X (screen capture + annotation), BackgroundMusic
+#      (per-app volume), Raycast quick-launch bits. Install only the features
+#      you want from inside the app — don't blindly enable everything.
+#      Requires: arm64 + macOS >= 14. Local-first, no account/telemetry.
+cask "vorssaint"
 cask "appcleaner"
 cask "localsend"         # WiFi file transfer
 cask "caffeine"          # prevent sleep
