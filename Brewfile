@@ -19,11 +19,17 @@ tap "hashicorp/tap", trusted: true
 tap "cloudfoundry/tap", trusted: true
 # WHY: hAIperspace `hai` CLI — internal SAP AI tool. Memory: HAI = SAP work only.
 tap "haiperspace/hai", "https://github.tools.sap/hAIperspace/hai-homebrew", trusted: true
+# WHY: antoniorodr/memo — Apple Notes + Reminders CLI (testing utility).
+tap "antoniorodr/memo", trusted: true
+# WHY: jsonlee12138/agent-team — multi-agent orchestration CLI (testing utility).
+tap "jsonlee12138/agent-team", "https://github.com/JsonLee12138/homebrew-agent-team", trusted: true
 # WHY: design fonts (font-crimson-pro, ia-writer-quattro, inter, lora) for
 #      vault/docs. NOTE: tap homebrew/cask-fonts deprecated (2026-06); fonts
 #      now live in homebrew/cask. Untapped on 2026-06-12 — no-op for users.
 
 # ── Formulae: terminal essentials ───────────────────────────────────────────
+brew "rsync"         # modern rsync 3.5+; macOS stock openrsync 2.6 lacks --info=progress2,
+                     # chokes on common flags, breaks Mac-to-Mac sync. Install EARLY.
 brew "bat"           # cat with syntax highlighting
 brew "btop"          # gorgeous resource monitor
 brew "eza"           # modern ls replacement
@@ -76,6 +82,18 @@ brew "kubectx"       # kubectl context/namespace switcher
 brew "k9s"
 # WHY: azure-cli migrated from homebrew/core → homebrew/cask (2026). Must be cask now.
 brew "ollama", restart_service: :changed   # local LLMs (auto-restart on upgrade)
+brew "colima"                              # Docker VM alternative (lighter than Docker Desktop)
+brew "docker-compose"                      # compose plugin (used with colima or docker-desktop)
+brew "git-filter-repo"                     # history rewrite tool
+brew "libpq"                               # Postgres client libraries (psql)
+brew "ninja"                               # fast build system (cmake backend)
+brew "defaultbrowser"                      # CLI to set macOS default browser
+brew "espeak-ng"                           # TTS engine (used by songsee / local STT)
+brew "googleworkspace-cli"                 # `gws` CLI — Gmail/Drive/Calendar from terminal (skills)
+brew "portaudio"                           # audio capture dep
+brew "icu4c@78"                            # unicode libs (python/node native dep)
+brew "antoniorodr/memo/memo"               # Apple Notes + Reminders CLI (testing)
+brew "jsonlee12138/agent-team/agent-team"  # multi-agent orchestration CLI (testing)
 brew "wget"
 brew "curl"
 

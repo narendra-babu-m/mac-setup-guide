@@ -135,6 +135,18 @@ if [ "$SKIP_DEFAULTS" = "false" ]; then
   fi
 fi
 
+# ── Phase 2.9: Hermes Agent (opt-in via SETUP_HERMES=1) ─────────────────────
+# NOTE: skipped by default. Set SETUP_HERMES=1 before invoking bootstrap to run.
+#       LOAD_AGENTS=1 (nested) will also load LaunchAgents afterwards.
+if [ "${SETUP_HERMES:-0}" = "1" ]; then
+  section "Phase 2.9: Hermes Agent"
+  if [ -x "$SCRIPTS/hermes-setup.sh" ]; then
+    bash "$SCRIPTS/hermes-setup.sh" || echo "  (continuing despite error in hermes-setup.sh)"
+  else
+    echo "  skip: hermes-setup.sh not found"
+  fi
+fi
+
 # ── Phase 3: manual reminders ───────────────────────────────────────────────
 section "Phase 3: things you must do manually"
 cat <<EOF
