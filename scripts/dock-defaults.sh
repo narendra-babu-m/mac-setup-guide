@@ -67,6 +67,44 @@ MC_REARRANGE_SPACES=false
 # WHY: Easier to spot the right window in a sea of thumbnails.
 MC_GROUP_BY_APP=true
 
+# ─── Hot Corners (Snazzy Labs "25 Mac Settings") ────────────────────────────
+#
+# Each corner has an ACTION code and a MODIFIER mask. Modifier requires a
+# modifier key to be held for the corner to fire — kills accidental triggers
+# when the cursor just drifts into a corner.
+#
+# ACTION codes (verified macOS 26):
+#   0=none  2=Mission Control  3=App Windows  4=Desktop
+#   5=Start Screen Saver  6=Disable Screen Saver  10=Put Display to Sleep
+#   11=Launchpad  12=Notification Center  13=Lock Screen  14=Quick Note
+#
+# MODIFIER mask (sum values to combine):
+#   0       = no modifier required (dangerous — fires on any corner touch)
+#   131072  = Shift
+#   262144  = Control
+#   524288  = Option
+#   1048576 = Command        ← Naren's choice: hold Cmd to activate
+#   Example: 1572864 = Cmd+Option
+#
+# WHY Cmd-gate everything: Snazzy Labs calls hot corners "slow and annoying"
+# because they fire on accidental cursor drift. Gating with Cmd keeps the
+# feature but kills the misfires. Comment any corner out to leave macOS default.
+#
+# Current live mapping (captured 2026-11):
+#   top-left     = Desktop             (peek at files behind windows)
+#   top-right    = Notification Center (quick glance at alerts)
+#   bottom-left  = Launchpad           (full app grid)
+#   bottom-right = Quick Note          (jot without context-switch)
+
+HOT_CORNER_TL_ACTION=4         # Desktop
+HOT_CORNER_TL_MODIFIER=1048576 # Cmd
+HOT_CORNER_TR_ACTION=12        # Notification Center
+HOT_CORNER_TR_MODIFIER=1048576 # Cmd
+HOT_CORNER_BL_ACTION=11        # Launchpad
+HOT_CORNER_BL_MODIFIER=1048576 # Cmd
+HOT_CORNER_BR_ACTION=14        # Quick Note
+HOT_CORNER_BR_MODIFIER=1048576 # Cmd
+
 # ============================================================================
 # APPLY
 # ============================================================================
@@ -86,6 +124,16 @@ apply_string DOCK_ORIENTATION                com.apple.dock orientation
 apply_float  DOCK_MISSION_CONTROL_TIME       com.apple.dock expose-animation-duration
 apply_bool   MC_REARRANGE_SPACES             com.apple.dock mru-spaces
 apply_bool   MC_GROUP_BY_APP                 com.apple.dock expose-group-apps
+
+# Hot Corners
+apply_int    HOT_CORNER_TL_ACTION            com.apple.dock wvous-tl-corner
+apply_int    HOT_CORNER_TL_MODIFIER          com.apple.dock wvous-tl-modifier
+apply_int    HOT_CORNER_TR_ACTION            com.apple.dock wvous-tr-corner
+apply_int    HOT_CORNER_TR_MODIFIER          com.apple.dock wvous-tr-modifier
+apply_int    HOT_CORNER_BL_ACTION            com.apple.dock wvous-bl-corner
+apply_int    HOT_CORNER_BL_MODIFIER          com.apple.dock wvous-bl-modifier
+apply_int    HOT_CORNER_BR_ACTION            com.apple.dock wvous-br-corner
+apply_int    HOT_CORNER_BR_MODIFIER          com.apple.dock wvous-br-modifier
 
 restart_app Dock
 log "done. Dock restarted."

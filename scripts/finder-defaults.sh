@@ -116,6 +116,26 @@ FINDER_WARN_EMPTY_TRASH=false
 # WHY: Self-cleaning trash; prevents forever-undeleted-files growth.
 FINDER_AUTO_EMPTY_TRASH_30_DAYS=true
 
+# ─── Desktop icons (Snazzy Labs "25 Mac Settings") ──────────────────────────
+
+# Show internal hard drives on the Desktop
+# WHY: Quick drag-target + visual confirmation of mount. Not noisy on a
+#      single-disk laptop. Flip to false if you use a clean-Desktop setup.
+FINDER_SHOW_HDS_ON_DESKTOP=false
+
+# Show external hard drives on the Desktop
+# WHY: Instant visual when a backup drive mounts; eject by drag-to-trash.
+FINDER_SHOW_EXTERNAL_HDS_ON_DESKTOP=true
+
+# Show removable media (USB sticks, SD cards) on the Desktop
+# WHY: Same reason as external HDs; you want to SEE it mounted.
+FINDER_SHOW_REMOVABLE_ON_DESKTOP=true
+
+# Show mounted servers (SMB/AFP/NFS) on the Desktop
+# WHY: Visual cue for network mounts; flip to false if you mount many shares
+#      and don't want the clutter.
+FINDER_SHOW_SERVERS_ON_DESKTOP=false
+
 # ============================================================================
 # APPLY — You shouldn't need to edit below this line.
 # ============================================================================
@@ -155,6 +175,12 @@ apply_bool   FINDER_DISABLE_ANIMATIONS       com.apple.finder      DisableAllAni
 apply_bool   FINDER_ALLOW_QUIT               com.apple.finder      QuitMenuItem
 apply_bool   FINDER_WARN_EMPTY_TRASH         com.apple.finder      WarnOnEmptyTrash
 apply_bool   FINDER_AUTO_EMPTY_TRASH_30_DAYS com.apple.finder      FXRemoveOldTrashItems
+
+# Desktop icons
+apply_bool   FINDER_SHOW_HDS_ON_DESKTOP           com.apple.finder ShowHardDrivesOnDesktop
+apply_bool   FINDER_SHOW_EXTERNAL_HDS_ON_DESKTOP  com.apple.finder ShowExternalHardDrivesOnDesktop
+apply_bool   FINDER_SHOW_REMOVABLE_ON_DESKTOP     com.apple.finder ShowRemovableMediaOnDesktop
+apply_bool   FINDER_SHOW_SERVERS_ON_DESKTOP       com.apple.finder ShowMountedServersOnDesktop
 
 # ─── calculateAllSizes — nested keys, needs PlistBuddy ──────────────────────
 # `defaults write` cannot reach into dictionary children, so we walk the
