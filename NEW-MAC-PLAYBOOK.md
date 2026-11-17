@@ -4,6 +4,11 @@ This is the playbook distilled from migrating a fully configured Mac to a fresh
 SAP-managed MacBook on 2026-11-03. It supplements `bootstrap.sh` with the
 Mac-to-Mac data migration dance that the repo alone does not cover.
 
+> 📍 **READ FIRST before any future migration:** [`docs/lessons-learned-nov-2026.md`](docs/lessons-learned-nov-2026.md)
+> — catalogs the Hermes state.db corruption trap, MDM keychain pitfalls, SAP
+> Platform SSO configuration gap, VPN-ACL quirks, and the agent-workflow preferences
+> that cost us 4+ hours of debugging. Single most important file in this repo.
+
 ## Order of operations
 
 | Phase | What | Tool | Minutes |

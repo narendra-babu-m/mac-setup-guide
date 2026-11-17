@@ -1,7 +1,7 @@
 # Mac Setup — Apps, Tools & Productivity Guide
 
 > **Machine**: MacBook (Apple Silicon)
-> **Last updated**: April 2026
+> **Last updated**: November 2026
 
 ---
 
@@ -14,6 +14,8 @@ curl -fsSL https://raw.githubusercontent.com/narendra-babu-m/mac-setup-guide/mai
 ```
 
 Migrating from another Mac? See [NEW-MAC-PLAYBOOK.md](NEW-MAC-PLAYBOOK.md).
+
+> 🚨 **Burned once already — read before Mac-to-Mac migration:** [`docs/lessons-learned-nov-2026.md`](docs/lessons-learned-nov-2026.md). Hermes state.db corruption, MDM keychain traps, SAP Platform SSO config gap, VPN-ACL vs PAT, SAP IP policy boundaries, agent workflow preferences. Scroll it before touching rsync.
 
 SAP work setup (adds Hermes, LaunchAgents, SAP VS Code extensions)?
 
